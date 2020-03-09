@@ -74,8 +74,11 @@ This section documents the datasets used in this analysis.
 
 ## Dataset description
 **Citation:** Put citation here in APA or other consistent format that you will use throughout the project. Include a hyperlink if applicable.  
-**DOI:** If the dataset has a documention identified (DOI) assigned put it here.  
-**Date Downloaded:** Identify when you downloaded the dataset.  
+Texas Commission on Environmental Quality. (2003). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
+Texas Commission on Environmental Quality. (2004). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
+City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858 
+
+**Date Downloaded:** March 10, 2020 
 **Filename(s):** raw_data/filename.csv *If you have a large number of files you can use a patten (see visit data below)*
 **Unit of observation:** What distinguishes different rows in your dataset?  
 **Dates covered:** What time frame does the data cover?  
