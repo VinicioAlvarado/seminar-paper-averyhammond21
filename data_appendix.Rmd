@@ -1,6 +1,6 @@
 ---
 title: "Data Appendix to \"Name of your paper\""
-author: "Your name"
+author: "Avery Hammond"
 output: 
   pdf_document:
     toc: true
@@ -17,15 +17,16 @@ st_options(plain.ascii = F,
            subtitle.emphasis = F,
            dfSummary.silent = T,
            dfSummary.valid.col = F,
-           tmp.img.dir = "./tmp",
-           dfSummary.style = "grid")
+           tmp.img.dir = "tmp",
+           dfSummary.style = "grid",
+           use.x11 = F)
 
 #The following custom function simplifies the process of writing dfSummaries to html files
 export_summary_table <- function(dfSummary_output){
   data_info <- attr(dfSummary_output, "data_info")
   ds_name <- data_info$Data.frame
-  print(dfSummary_output,
-      file = str_c("output/", ds_name, "_summary.html"),
+  print(dfSummary_output %>% st_options(use.x11 = F),
+      file = file.path("output", str_c(ds_name, "_summary.html")),
       method = "browser",
       report.title = ds_name)
 }
@@ -99,6 +100,93 @@ Create a bullet list with the name of each variable in the dataset followed by a
 ### Data import code and summary
 
 *Once you've described the variables, enter an R chunk by selecting Code -> Insert Chunk, or Ctrl+Alt+I, give it a name to describe the dataset you are importing. After importing, export a dataframe summary using the command.*
+```{r set up download and read function}
+
+years = c("2003","2004")
+
+download_and_read_data <- function(filename){
+  
+  if (!file.exists(file.path("raw-data",str_c(filename, ".csv")))) {
+    
+    destfile = file.path("raw-data",str_c(filename, ".zip"))
+    
+    download.file(url = str_c("https://www.tceq.texas.gov/assets/public/compliance/monops/air/ozonehist/", filename, ".zip"), destfile = destfile)
+    
+    unzip(destfile, exdir = "raw-data", junkpaths = T)
+  }
+  this_data <- read_csv(file.path("raw-data", str_c(filename, ".csv")))
+}
+```
+
+```{r read in ozone data}
+oz_data <- lapply(str_c("oz_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("OZ1hr")) %>%
+  select(-OZ1hrvh, -OZ1hrvd, -OZ1hrpk, -OZ1hrav) %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone")
+
+stargazer::stargazer(ozone_data)
+
+```
+
+```{r read in co data}
+co_data <- lapply(str_c("co_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("CO1hr")) %>%
+  select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon monoxide")
+
+stargazer::stargazer(co_data)
+
+```
+
+```{r read in so2 data}
+so2_data <- lapply(str_c("so2_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("SO21hr")) %>%
+  select(-SO21hrvh, -SO21hrvd, -SO21hrpk, -SO21hrav) %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur dioxide")
+
+stargazer::stargazer(so2_data)
+
+```
+
+```{r read in nox data}
+nox_data <- lapply(str_c("nox_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("NOX1hr")) %>%
+  select(-NOX1hrvh, -NOX1hrvd, -NOX1hrpk, -NOX1hrav) %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous oxides")
+
+stargazer::stargazer(nox_data)
+
+```
+
+```{r read in pm25 data}
+pm25_data <- lapply(str_c("pm25x_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(AIRS, ST_CODE, AQCR, date, contains("PM251hr")) %>%
+  select(-PM251hrvh, -PM251hrvd, -PM251hrpk, -PM251hrav) %>%
+  group_by(AIRS, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5")
+
+stargazer::stargazer(pm25_data)
+```
+
+```{r read in weather data}
+weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr")) %>%
+  select(-WSR1hrvh, -WSR1hrvd, -WSR1hrpk, -WSR1hrav) %>%
+  group_by(AIRS, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("WSR1"), names_to = "hour", values_to = "weather")
+
+stargazer::stargazer(weather_data)
+```
 
 `export_summary_table(dfSummary(dataset_name))`
 
