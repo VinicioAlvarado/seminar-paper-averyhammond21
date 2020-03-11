@@ -17,7 +17,6 @@ st_options(plain.ascii = F,
            subtitle.emphasis = F,
            dfSummary.silent = T,
            dfSummary.valid.col = F,
-           tmp.img.dir = "tmp",
            dfSummary.style = "grid",
            use.x11 = F)
 
@@ -136,9 +135,10 @@ oz_data <- lapply(str_c("oz_",years), download_and_read_data) %>%
   select(airs, ST_CODE, AQCR, date, contains("OZ1hr")) %>%
   select(-OZ1hrvh, -OZ1hrvd, -OZ1hrpk, -OZ1hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone")
+  pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone") %>%
+  mutate(hour = as.numeric(str_remove(hour,"OZ1hr")))
 
-stargazer::stargazer(oz_data)
+stargazer::stargazer(as.data.frame(oz_data))
 
 ```
 
@@ -148,9 +148,10 @@ co_data <- lapply(str_c("co_",years), download_and_read_data) %>%
   select(airs, ST_CODE, AQCR, date, contains("CO1hr")) %>%
   select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon monoxide")
+  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon monoxide") %>%
+  mutate(hour = as.numeric(str_remove(hour,"CO1hr")))
 
-stargazer::stargazer(co_data)
+stargazer::stargazer(as.data.frame(co_data))
 
 ```
 
@@ -160,9 +161,10 @@ so2_data <- lapply(str_c("so2_",years), download_and_read_data) %>%
   select(airs, ST_CODE, AQCR, date, contains("SO21hr")) %>%
   select(-SO21hrvh, -SO21hrvd, -SO21hrpk, -SO21hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur dioxide")
+  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur dioxide") %>%
+  mutate(hour = as.numeric(str_remove(hour,"SO21hr")))
 
-stargazer::stargazer(so2_data)
+stargazer::stargazer(as.data.frame(so2_data))
 
 ```
 
@@ -172,9 +174,10 @@ nox_data <- lapply(str_c("nox_",years), download_and_read_data) %>%
   select(airs, ST_CODE, AQCR, date, contains("NOX1hr")) %>%
   select(-NOX1hrvh, -NOX1hrvd, -NOX1hrpk, -NOX1hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous oxides")
+  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous oxides") %>%
+  mutate(hour = as.numeric(str_remove(hour,"NOX1hr")))
 
-stargazer::stargazer(nox_data)
+stargazer::stargazer(as.data.frame(nox_data))
 
 ```
 
@@ -184,20 +187,26 @@ pm25_data <- lapply(str_c("pm25x_",years), download_and_read_data) %>%
   select(AIRS, ST_CODE, AQCR, date, contains("PM251hr")) %>%
   select(-PM251hrvh, -PM251hrvd, -PM251hrpk, -PM251hrav) %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5")
+  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5") %>%
+  mutate(hour = as.numeric(str_remove(hour,"PM251hr")))
 
-stargazer::stargazer(pm25_data)
+stargazer::stargazer(as.data.frame(pm25_data))
 ```
 
 ```{r read in weather data}
 weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>% 
   bind_rows() %>%
-  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr")) %>%
-  select(-WSR1hrvh, -WSR1hrvd, -WSR1hrpk, -WSR1hrav) %>%
+  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr"), contains("WDR1hr"), contains("WHR1hr")) %>%
+  select(-WSR1hrvh, -WSR1hrvd, -WSR1hrpk, -WSR1hrav, -TMP1hrvh, -TMP1hrvd, -TMP1hrav, -TMP1hrpk) %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("WSR1"), names_to = "hour", values_to = "weather")
+  pivot_longer(cols = contains("WSR1"), names_to = "hour", values_to = "wind speed") %>%
+  mutate(hour = as.numeric(str_remove(hour,"WSR1hr"))) %>%
+  mutate(hour = as.numeric(str_remove(hour,"WDR1hr"))) %>%
+  mutate(hour = as.numeric(str_remove(hour,"WHR1hr"))) %>%
+  mutate(hour = as.numeric(str_remove(hour,"TMP1hr")))
+  
 
-stargazer::stargazer(weather_data)
+stargazer::stargazer(as.data.frame(weather_data))
 ```
 
 `export_summary_table(dfSummary(dataset_name))`
