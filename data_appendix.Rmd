@@ -68,30 +68,39 @@ A few tips:
 - Make sure you have empty lines above and below section and subsection headings.
 - When creating numbered lists, you can number all items in your list with 1. Rmarkdown will number them sequentially when it creates your final document.
 
-# Raw data
+#3 Raw data
 *Each dataset you use will have its own documentation section. The next subsection in this document (Dataset description) is a template. You can copy this section and paste it into your document each time you need to add a section for a new dataset. Note that each line in the Dataset description section __must__ end with two spaces.* 
 This section documents the datasets used in this analysis.
 
-## Dataset description
-**Citation:** Put citation here in APA or other consistent format that you will use throughout the project. Include a hyperlink if applicable.  
-Texas Commission on Environmental Quality. (2003). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
-Texas Commission on Environmental Quality. (2004). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
-City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858 
-
+##3.1 Historical Pollutant and Weather Data
+**Citation:** Texas Commission on Environmental Quality. (2003-2004). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
 **Date Downloaded:** March 10, 2020 
-**Filename(s):** raw_data/filename.csv *If you have a large number of files you can use a patten (see visit data below)*
-**Unit of observation:** What distinguishes different rows in your dataset?  
-**Dates covered:** What time frame does the data cover?  
+**Filename(s):**
+raw_data/camswx_200x.csv
+raw_data/co_200x.csv
+raw_data/nox_200x.csv
+raw_data/oz_200x.csv
+raw_data/pm25x_200x.csv
+raw_data/so2_200x.csv
+*If you have a large number of files you can use a patten (see visit data below)*
+**Unit of observation:** parts per billion, meters/second, degrees compass, decrees Celsius
+**Dates covered:** 01/01/2003-12/31/2004
 
 ### To obtain a copy
 
-Describe in a step-by-step fashion how an interested user could obtain the data.
+Interested users should visit the Historical Pollutant and Weather Data on the Texas Commission on Environmental Quality website at https://www.tceq.texas.gov/airquality/monops/historical_data.html#red. To download data from 2003 and 2004, users should click on the corresponding years for each column, which will download the data setfor each column as a CSV file.
 
-### Importable version (if necessary)
+##3.2 Metro Rail Station Data
 
-**Filename(s):** importable-data/filename-importable.csv
+**Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
+**Date Downloaded:** March 10, 2020
+**Filename(s):** raw_data/COH_METRO_RAIL_STATION_current.csv
+**Unit of observation:** degrees longitude, degrees latitude, year in service
+**Dates covered:** 2004
 
-In some cases the raw data is not directly importable. In this case, you should fully document every step you took to create the importable data in a subsection like this one. 
+### To obtain a copy
+
+Interested users should visit the Metro Rail Stations section of the City of Houston GIS data website at https://cohgis-mycity.opendata.arcgis.com/datasets/1dc7a23374ac44cdae8553044bfeaf22_14?geometry=-95.618%2C29.649%2C-95.179%2C29.858. Users should select "Download," and then select "Spreadsheet" beneath "Full Dataset," which will download the metro rail station data as a csv file. 
 
 ### Variable descriptions
 
@@ -129,7 +138,7 @@ oz_data <- lapply(str_c("oz_",years), download_and_read_data) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone")
 
-stargazer::stargazer(ozone_data)
+stargazer::stargazer(oz_data)
 
 ```
 
