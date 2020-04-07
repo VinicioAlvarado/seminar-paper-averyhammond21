@@ -89,6 +89,26 @@ raw_data/so2_200x.csv
 
 Interested users should visit the Historical Pollutant and Weather Data on the Texas Commission on Environmental Quality website at https://www.tceq.texas.gov/airquality/monops/historical_data.html#red. To download data from 2003 and 2004, users should click on the corresponding years for each column, which will download the data setfor each column as a CSV file.
 
+### Variable descriptions
+
+Create a bullet list with the name of each variable in the dataset followed by any information the user would need to understand it.
+
+- **date:** The date of the observation.
+- **hour:** The hour of the observation.
+- **AQCR:** Air Quality Control Region code identifying a group of counties that share geographical or pollutant concentration characteristics based on a common pollutant source.
+- **ozone:** Concentration of ozone in parts per billion.
+- **nitrous oxides:** Concentration of nitrous oxides in parts per billion.
+- **carbon monoxide:** Concentration of carbon monoxide in parts per billion.
+- **sulfur dioxide:** Concentration of sulfur dioxide in parts per billion.
+- **PM2.5:** Concentration of particulate matter 2.5 in parts per billion.
+- **TMP1:** Temperature taken hourly, measured in degrees celcius.
+- **WDR1:** Wind direction taken hourly, measured in degrees compass.
+- **WSR1:** Wind speed taken hourly, measured in meters per second. 
+
+### Data import code and summary
+
+*Once you've described the variables, enter an R chunk by selecting Code -> Insert Chunk, or Ctrl+Alt+I, give it a name to describe the dataset you are importing. After importing, export a dataframe summary using the command.*
+
 ##3.2 Metro Rail Station Data
 
 **Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
@@ -200,6 +220,9 @@ weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>%
   select(-WSR1hrvh, -WSR1hrvd, -WSR1hrpk, -WSR1hrav, -TMP1hrvh, -TMP1hrvd, -TMP1hrav, -TMP1hrpk) %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("WSR1"), names_to = "hour", values_to = "wind speed") %>%
+  pivot_longer(cols = contains("TMP1"), names_to = "hour", values_to = "temperature") %>%
+  pivot_longer(cols = contains("WDR1"), names_to = "hour", values_to = "wind direction") %>%
+  pivot_longer(cols = contains("WHR1"), names_to = "hour", values_to = "head wind") %>%
   mutate(hour = as.numeric(str_remove(hour,"WSR1hr"))) %>%
   mutate(hour = as.numeric(str_remove(hour,"WDR1hr"))) %>%
   mutate(hour = as.numeric(str_remove(hour,"WHR1hr"))) %>%
@@ -207,6 +230,14 @@ weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>%
   
 
 stargazer::stargazer(as.data.frame(weather_data))
+```
+
+```{r read in metro data}
+library(readr)
+metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv") %>%
+
+stargazer::stargazer(as.data.frame(metro_data))
+
 ```
 
 `export_summary_table(dfSummary(dataset_name))`
