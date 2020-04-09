@@ -11,6 +11,7 @@ output:
 knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
 library(summarytools)
+library(sf)
 
 systemInfo <- Sys.info()
 if (systemInfo[[1]] == "Windows") {
@@ -263,11 +264,35 @@ weather_hourly <- weather_data %>%
 ```
 
 ```{r read in metro data}
-library(readr)
-metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv")
+metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv") %>% 
+  rename(latitude = X, longitude = Y)
 
-stargazer::stargazer(as.data.frame(metro_data))
+metro_data_geometry <- st_as_sf(metro_data, coords = c("longitude", "latitude"),
+                                crs = 4326) %>% 
+  filter(Label == 1) %>% 
+  select(OBJECTID)
 
+# Note: most stations appear to be in the data twice, once with label = 1, once with label = 0
+# The two rows have slightly different lat/long characteristics. It might be worth checking
+#the data to see what this might mean and which one you really want.
+```
+
+```{r read-in monitor location data}
+monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>% 
+  mutate(longitude = -LONG, latitude = LATT) %>% 
+  select(AIRS,TNRCCRNM, longitude, latitude) %>% 
+  filter(TNRCCRNM == "Houston") %>% 
+  filter(!is.na(longitude)) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+distances <- st_distance(monitor_locations, metro_data_geometry)
+colnames(distances) <- metro_data_geometry$OBJECTID
+
+distance_data <- as_tibble(distances)
+distance_data$airs <- monitor_locations$AIRS 
+
+distance_list <- distance_data %>% 
+  pivot_longer(-airs, names_to = "metro_object", values_to = "distance")
 ```
 
 *While it will make your resulting file long, you should not modify the chunk options to suppress printing of code and output. I would likely not include this in the documentation for an actual paper I was submitting, but including them here will let me read your code and the output message from R and may help identify data import concerns early in the process. Since these files will exist only electronically, their length is less of a concern. If you like to print out files to proofread and want me to help you shorten the printed versions, let me know. We can temporarily modify the chunk options for printing and restore them before you submit the assignment.*
