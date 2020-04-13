@@ -45,7 +45,7 @@ st_css()
 # Appendix description
 *Your Data Appendix should begin with a brief statement explaining its purpose like the following one.*
 
-This Data Appendix documents the data used in "Papter Title". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.
+This Data Appendix documents the data used in "Paper Title". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.
 
 The datasets used directly by the final analysis are saved in `processed-data/` at the end of this file.
 
@@ -109,37 +109,13 @@ Create a bullet list with the name of each variable in the dataset followed by a
 - **carbon monoxide:** Concentration of carbon monoxide in parts per billion.
 - **sulfur dioxide:** Concentration of sulfur dioxide in parts per billion.
 - **PM2.5:** Concentration of particulate matter 2.5 in parts per billion.
-- **TMP1:** Temperature taken hourly, measured in degrees celcius.
+- **TMP1:** Temperature taken hourly, measured in degrees celsius.
 - **WDR1:** Wind direction taken hourly, measured in degrees compass.
 - **WSR1:** Wind speed taken hourly, measured in meters per second. 
 
 ### Data import code and summary
 
-*Once you've described the variables, enter an R chunk by selecting Code -> Insert Chunk, or Ctrl+Alt+I, give it a name to describe the dataset you are importing. After importing, export a dataframe summary using the command.*
-
-##3.2 Metro Rail Station Data
-
-**Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
-**Date Downloaded:** March 10, 2020
-**Filename(s):** raw_data/COH_METRO_RAIL_STATION_current.csv
-**Unit of observation:** degrees longitude, degrees latitude, year in service
-**Dates covered:** 2004
-
-### To obtain a copy
-
-Interested users should visit the Metro Rail Stations section of the City of Houston GIS data website at https://cohgis-mycity.opendata.arcgis.com/datasets/1dc7a23374ac44cdae8553044bfeaf22_14?geometry=-95.618%2C29.649%2C-95.179%2C29.858. Users should select "Download," and then select "Spreadsheet" beneath "Full Dataset," which will download the metro rail station data as a csv file. 
-
-### Variable descriptions
-
-Create a bullet list with the name of each variable in the dataset followed by any information the user would need to understand it.
-
-- **variable_name:** Variable description. 
-- **variable_name2:** Description of second variable.
-
-### Data import code and summary
-
-*Once you've described the variables, enter an R chunk by selecting Code -> Insert Chunk, or Ctrl+Alt+I, give it a name to describe the dataset you are importing. After importing, export a dataframe summary using the command.*
-```{r set up download and read function}
+```{r set up download and read function, echo = T}
 
 years = c("2003","2004")
 
@@ -157,7 +133,7 @@ download_and_read_data <- function(filename){
 }
 ```
 
-```{r read in ozone data}
+```{r read in ozone data, echo = T}
 oz_data <- lapply(str_c("oz_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(airs, ST_CODE, AQCR, date, contains("OZ1hr")) %>%
@@ -173,7 +149,7 @@ oz_hourly <- oz_data %>%
   mutate(hour = as.numeric(str_remove(hour,"OZ1hr")))
 ```
 
-```{r read in co data}
+```{r read in co data, echo = T}
 co_data <- lapply(str_c("co_",years), download_and_read_data) %>% 
   bind_rows() 
 
@@ -190,7 +166,7 @@ co_hourly <- co_data %>%
 
 ```
 
-```{r read in so2 data}
+```{r read in so2 data, echo = T}
 so2_data <- lapply(str_c("so2_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(airs, ST_CODE, AQCR, date, contains("SO21hr")) %>%
@@ -207,7 +183,7 @@ so2_hourly <- so2_data %>%
 
 ```
 
-```{r read in nox data}
+```{r read in nox data, echo = T}
 nox_data <- lapply(str_c("nox_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(airs, ST_CODE, AQCR, date, contains("NOX1hr")) %>%
@@ -224,7 +200,7 @@ nox_hourly <- nox_data %>%
 
 ```
 
-```{r read in pm25 data}
+```{r read in pm25 data, echo = T}
 pm25_data <- lapply(str_c("pm25x_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(AIRS, ST_CODE, AQCR, date, contains("PM251hr")) %>%
@@ -241,7 +217,7 @@ pm25_hourly <- pm25_data %>%
 
 ```
 
-```{r read in weather data}
+```{r read in weather data, echo = T}
 weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr"), contains("WDR1hr"), contains("WHR1hr")) %>%
@@ -262,12 +238,60 @@ weather_hourly <- weather_data %>%
 
 ```
 
-```{r read in metro data}
+##3.2 Metro Rail Station Data
+
+**Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
+**Date Downloaded:** March 10, 2020
+**Filename(s):** raw_data/COH_METRO_RAIL_STATION_current.csv
+**Unit of observation:** degrees longitude, degrees latitude, year in service
+**Dates covered:** 2004
+
+### To obtain a copy
+
+Interested users should visit the Metro Rail Stations section of the City of Houston GIS data website at https://cohgis-mycity.opendata.arcgis.com/datasets/1dc7a23374ac44cdae8553044bfeaf22_14?geometry=-95.618%2C29.649%2C-95.179%2C29.858. Users should select "Download," and then select "Spreadsheet" beneath "Full Dataset," which will download the metro rail station data as a csv file. 
+
+### Variable descriptions
+
+Create a bullet list with the name of each variable in the dataset followed by any information the user would need to understand it.
+
+- **latutide:** The latitudinal coordinates of the corresponding station. 
+- **longitude:** The longitudinal coordinates of the corresponding station.
+- **Stat_Name:** The name of the metro station.
+- **Stat_Loc:** The street address of the metro station.
+- **STATUS:** The operative status of the metro station, either existing or non-existing.
+- **service_year:** The year the metro station began operating.
+
+
+### Data import code and summary
+
+```{r read in metro data, echo = T}
 library(readr)
 metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv")
 
 stargazer::stargazer(as.data.frame(metro_data))
 
+colnames(metro_data) [1] <- "latitude"
+
+colnames(metro_data) [2] <- "longitude"
+
+colnames(metro_data) [9] <- "service_year"
+
+
+```
+
+```{r read-in monitor location data}
+monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>% 
+  mutate(longitude = -LONG, latitude = LATT) %>% 
+  select(AIRS,TNRCCRNM, longitude, latitude) %>% 
+  filter(TNRCCRNM == "Houston") %>% 
+  filter(!is.na(longitude)) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+distances <- st_distance(monitor_locations, metro_data_geometry)
+colnames(distances) <- metro_data_geometry$OBJECTID
+distance_data <- as_tibble(distances)
+distance_data$airs <- monitor_locations$AIRS 
+distance_list <- distance_data %>% 
+  pivot_longer(-airs, names_to = "metro_object", values_to = "distance")
 ```
 
 *While it will make your resulting file long, you should not modify the chunk options to suppress printing of code and output. I would likely not include this in the documentation for an actual paper I was submitting, but including them here will let me read your code and the output message from R and may help identify data import concerns early in the process. Since these files will exist only electronically, their length is less of a concern. If you like to print out files to proofread and want me to help you shorten the printed versions, let me know. We can temporarily modify the chunk options for printing and restore them before you submit the assignment.*
