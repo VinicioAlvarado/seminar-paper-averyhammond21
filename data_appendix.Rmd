@@ -11,6 +11,7 @@ output:
 knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
 library(summarytools)
+library(sf)
 
 systemInfo <- Sys.info()
 if (systemInfo[[1]] == "Windows") {
@@ -238,6 +239,7 @@ weather_hourly <- weather_data %>%
 
 ```
 
+<<<<<<< HEAD
 ##3.2 Metro Rail Station Data
 
 **Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
@@ -267,9 +269,18 @@ Create a bullet list with the name of each variable in the dataset followed by a
 ```{r read in metro data, echo = T}
 library(readr)
 metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv")
+=======
+```{r read in metro data}
+metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv") %>% 
+  rename(latitude = X, longitude = Y)
+>>>>>>> 0dd887a40cf5b0cee1777f45c8b4abaee40d51a7
 
-stargazer::stargazer(as.data.frame(metro_data))
+metro_data_geometry <- st_as_sf(metro_data, coords = c("longitude", "latitude"),
+                                crs = 4326) %>% 
+  filter(Label == 1) %>% 
+  select(OBJECTID)
 
+<<<<<<< HEAD
 colnames(metro_data) [1] <- "latitude"
 
 colnames(metro_data) [2] <- "longitude"
@@ -277,6 +288,11 @@ colnames(metro_data) [2] <- "longitude"
 colnames(metro_data) [9] <- "service_year"
 
 
+=======
+# Note: most stations appear to be in the data twice, once with label = 1, once with label = 0
+# The two rows have slightly different lat/long characteristics. It might be worth checking
+#the data to see what this might mean and which one you really want.
+>>>>>>> 0dd887a40cf5b0cee1777f45c8b4abaee40d51a7
 ```
 
 ```{r read-in monitor location data}
@@ -286,10 +302,20 @@ monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>%
   filter(TNRCCRNM == "Houston") %>% 
   filter(!is.na(longitude)) %>% 
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+<<<<<<< HEAD
 distances <- st_distance(monitor_locations, metro_data_geometry)
 colnames(distances) <- metro_data_geometry$OBJECTID
 distance_data <- as_tibble(distances)
 distance_data$airs <- monitor_locations$AIRS 
+=======
+
+distances <- st_distance(monitor_locations, metro_data_geometry)
+colnames(distances) <- metro_data_geometry$OBJECTID
+
+distance_data <- as_tibble(distances)
+distance_data$airs <- monitor_locations$AIRS 
+
+>>>>>>> 0dd887a40cf5b0cee1777f45c8b4abaee40d51a7
 distance_list <- distance_data %>% 
   pivot_longer(-airs, names_to = "metro_object", values_to = "distance")
 ```
