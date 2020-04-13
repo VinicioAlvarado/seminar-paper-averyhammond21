@@ -41,16 +41,23 @@ You are encouraged to change the heading for this subsection to something that r
 
 If you are **not** using a regression model in your analysis, this section will likely need to be significantly longer.
 
+As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Few of these studies, however, have been conducted within the United States. 
+
 ## Data
 
+The data used in this analysis covers the years 2003 and 2004 in the city of Houston, Texas. For the pollution analysis, this study uses time-series data that records pollutant concentrations and weather measurements on an hourly basis from 2003 to 2004. Historical weather and pollutant data comes from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003-2004). This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas. This data was retrieved from the City of Houston GIS database (City of Houston, 2019).
+ 
 Following the guidelines in the assignment prompt, describe the key features of your data. This section should include a table of summary statistics for all numerical variables in your data and a discussion of important patterns or caveats.
+
+
 
 ## Model Specification
 
 This section should explain and justify your empirical model specification. It should include an explicit statement of your regression model in a similar format as the one in the sample paper:
 
-$rec\_visits_{imy} = \beta_{1}svr\_median_{imy} + \beta_{2}svr\_p10_{imy} + \alpha_{im} + \gamma_{y} + \epsilon_{imy}$
+$pollution_{it} = \alpha_{0} + \beta_{i} + \alpha_{1t}\beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed$
 
+\beta_{2}svr\_p10_{imy}
 where $i$ indexes parks, $m$ indexes month of the year, and $y$ indexes year. (Make sure you include subscript indices and explain what they mean). As long as the variable names are the same ones you used above, you do not need to explain them again here. Describe any fixed effects you use include and the justification for using them. Explain how the coefficients in your regression model will help answer your research question.
 
 # Results & Discussion
