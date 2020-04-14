@@ -265,7 +265,7 @@ weather_hourly <- weather_data %>%
 
 ```{r read in metro data}
 metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv") %>% 
-  rename(latitude = X, longitude = Y)
+  rename(latitude = Y, longitude = X)
 
 metro_data_geometry <- st_as_sf(metro_data, coords = c("longitude", "latitude"),
                                 crs = 4326) %>% 
@@ -283,16 +283,9 @@ monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>%
   select(AIRS,TNRCCRNM, longitude, latitude) %>% 
   filter(TNRCCRNM == "Houston") %>% 
   filter(!is.na(longitude)) %>% 
+  filter(longitude != 0) %>% 
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
-distances <- st_distance(monitor_locations, metro_data_geometry)
-colnames(distances) <- metro_data_geometry$OBJECTID
-
-distance_data <- as_tibble(distances)
-distance_data$airs <- monitor_locations$AIRS 
-
-distance_list <- distance_data %>% 
-  pivot_longer(-airs, names_to = "metro_object", values_to = "distance")
 ```
 
 *While it will make your resulting file long, you should not modify the chunk options to suppress printing of code and output. I would likely not include this in the documentation for an actual paper I was submitting, but including them here will let me read your code and the output message from R and may help identify data import concerns early in the process. Since these files will exist only electronically, their length is less of a concern. If you like to print out files to proofread and want me to help you shorten the printed versions, let me know. We can temporarily modify the chunk options for printing and restore them before you submit the assignment.*
@@ -300,6 +293,22 @@ distance_list <- distance_data %>%
 
 # Data Processing and Combination
 *This section should include a discussion of the processing and merging steps needed to create your basic data. The code to implement these steps should be included in chunks in this section. Once the final merged data has been created, you should use the dfSummary function again to summarize the data you will be using. You should also save a file containing all the objects you will use in your final analysis to the processed_data folder.*
+
+```{r compute distances between monitors}
+distances <- st_distance(monitor_locations, metro_data_geometry)
+colnames(distances) <- metro_data_geometry$OBJECTID
+
+distance_data <- as_tibble(distances)
+distance_data$airs <- monitor_locations$AIRS 
+
+distance_list <- distance_data %>% 
+  pivot_longer(-airs, names_to = "metro_object", values_to = "distance") %>% 
+  mutate(distance = as.numeric(distance/1000)) 
+
+distance_measure <- distance_list %>%
+  group_by(airs) %>%
+  summarize(avg_dist = mean(distance), min_dist = min(distance))
+```
 
 # Analysis Variables
 
