@@ -147,7 +147,8 @@ if (run_summary) {
 oz_hourly <- oz_data %>% 
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone") %>%
-  mutate(hour = as.numeric(str_remove(hour,"OZ1hr")))
+  mutate(hour = as.numeric(str_remove(hour,"OZ1hr"))) %>%
+  mutate(after = date=="02/01/2004")
 ```
 
 ```{r read in co data, echo = T}
@@ -163,7 +164,8 @@ co_hourly <- co_data %>%
   select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon monoxide") %>%
-  mutate(hour = as.numeric(str_remove(hour,"CO1hr")))
+  mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
+  mutate(after = date=="02/01/2004")
 
 ```
 
@@ -180,7 +182,8 @@ if (run_summary) {
 so2_hourly <- so2_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur dioxide") %>%
-  mutate(hour = as.numeric(str_remove(hour,"SO21hr")))
+  mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
+  mutate(after = date=="02/01/2004")
 
 ```
 
@@ -197,7 +200,8 @@ if (run_summary) {
 nox_hourly <- nox_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous oxides") %>%
-  mutate(hour = as.numeric(str_remove(hour,"NOX1hr")))
+  mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
+  mutate(after = date=="02/01/2004")
 
 ```
 
@@ -214,7 +218,8 @@ if (run_summary) {
 pm25_hourly <- pm25_data %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5") %>%
-  mutate(hour = as.numeric(str_remove(hour,"PM251hr")))
+  mutate(hour = as.numeric(str_remove(hour,"PM251hr"))) %>%
+  mutate(after = date=="02/01/2004")
 
 ```
 
@@ -235,7 +240,9 @@ weather_hourly <- weather_data %>%
                names_pattern = "(.*)hr(.*)",
                values_to = "value") %>% 
   mutate(hour = as.numeric(hour)) %>% 
-  pivot_wider(names_from = "measurement", values_from = "value")
+  pivot_wider(names_from = "measurement", values_from = "value") %>%
+  mutate(after = date=="02/01/2004") %>%
+  mutate(airs = AIRS)
 
 ```
 
@@ -297,6 +304,7 @@ monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>%
 
 ```
 
+
 *While it will make your resulting file long, you should not modify the chunk options to suppress printing of code and output. I would likely not include this in the documentation for an actual paper I was submitting, but including them here will let me read your code and the output message from R and may help identify data import concerns early in the process. Since these files will exist only electronically, their length is less of a concern. If you like to print out files to proofread and want me to help you shorten the printed versions, let me know. We can temporarily modify the chunk options for printing and restore them before you submit the assignment.*
 
 
@@ -315,7 +323,9 @@ distance_list <- distance_data %>%
 
 distance_measure <- distance_list %>%
   group_by(airs) %>%
-  summarize(avg_dist = mean(distance), min_dist = min(distance))
+  summarize(avg_dist = mean(distance), min_dist = min(distance)) %>%
+  mutate(exposed = min_dist<=4) %>%
+  mutate(airs = as.numeric(airs))
 ```
 
 # Analysis Variables

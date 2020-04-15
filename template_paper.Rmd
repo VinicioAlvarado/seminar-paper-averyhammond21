@@ -16,6 +16,7 @@ bibliography: template.bib
 knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
 library(summarytools)
+library(stargazer)
 ```
 
 # Introduction
@@ -30,6 +31,10 @@ Follow the introduction "formula" we developed in class to write your introducti
 While it has become common in economic journal articles to include the literature review in a somewhat expanded introduction, we will continue to have a separate section for the literature review. You will submit an initial version in the Literature Review assignment. Although it will look somewhat messy, I encourage you to use this template to complete that assignment. 
 
 Before submitting the literature review assignment, remove all the placeholder and descriptive text in this section and replace it with your literature review. Remember to follow the guidelines in the assignment prompt, which is based on the literature review assignment described in @marshall2019writing. **You should leave the placeholder text in other sections unless you have begun working in the other sections.** When you submit the literature review, your grade will be based on only information appearing in the literature review section of the document, but you are free to begin work on other sections of the paper and include those in your repository.
+
+This paper expands on much of the existing literature regarding the impact of public transit expansion on local air quality in urban settings. Recent papers have analyzed the impact of public buses in particular, with Titos et al. (2015) finding black carbon and PM10 reductions of 37% and 33% respectively after the implementation of a new public bus system in Granada, Spain. Bel et al. (2018) have also found a 7.17% reduction in the short-term of air pollution concentrations in the areas surrounding Mexico City's new Metrobus line. This paper 
+
+We base much of our method on the work of Zheng et. al (2019), which uses a difference-in-difference model to examine the impact of a new subway line in Changsha, China, on individual pollutant concentrations within areas surrounding the new subway stations. Their difference-in-difference model extends to one year before and after the subway expansion to measure the medium-term effects on air pollution in the affected areas. This paper deviates most notably from the work of Zheng et al. (2019) in this sense, as we utilize a 3-month difference-in-difference period on either side of METRO Rail expansion to determine more precisely the short-term effects on air pollutant concentrations. 
 
 # Data and Methods
 
@@ -49,18 +54,33 @@ The data used in this analysis covers the years 2003 and 2004 in the city of Hou
  
 Following the guidelines in the assignment prompt, describe the key features of your data. This section should include a table of summary statistics for all numerical variables in your data and a discussion of important patterns or caveats.
 
+```{r making oz_regression_data}
+oz_regression_data <- merge(oz_hourly, merge(distance_measure, weather_hourly))
+```
 
+```{r test running oz regression}
+
+regression_results <- lm(ozone ~ after + hour*after + exposed + exposed*after + TMP1, 
+                         data = oz_regression_data)
+
+stargazer(regression_results, type = "latex",
+          report = 'vct',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
 
 ## Model Specification
 
 This section should explain and justify your empirical model specification. It should include an explicit statement of your regression model in a similar format as the one in the sample paper:
 
-$pollution_{it} = \alpha_{0} + \beta_{i} + \alpha_{1t}\beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed$
+$pollution_{it} = \alpha_{0} + \beta_{i} + \alpha_{1t}\beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}$
 
 \beta_{2}svr\_p10_{imy}
 where $i$ indexes parks, $m$ indexes month of the year, and $y$ indexes year. (Make sure you include subscript indices and explain what they mean). As long as the variable names are the same ones you used above, you do not need to explain them again here. Describe any fixed effects you use include and the justification for using them. Explain how the coefficients in your regression model will help answer your research question.
 
 # Results & Discussion
+
 
 Present your results here and discuss them. Make sure to consider the magnitude of your effects. This requires you to understand your data. Consider using the standard deviation of your variables to give readers a sense of the size of the effects.
 
