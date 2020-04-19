@@ -339,14 +339,12 @@ This section should include a description of all the variables that are used in 
 *This section should include a discussion of any data patterns you notice based on the summaries created in the code above.*
 
 ```{r making oz_regression_data}
-oz_weather_data <- left_join(oz_hourly, weather_hourly)
-
-oz_regression_data <- left_join(oz_weather_data, distance_list)
+oz_regression_data <- merge(distance_list, merge(oz_hourly, weather_hourly))
 ```
 
 ```{r test running oz regression}
 
-oz_regression_results <- lm(ozone ~ after + hour*after + exposed + exposed*after + TMP1, 
+oz_regression_results <- lm(ozone ~ after + hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
                          data = oz_regression_data)
 
 stargazer(oz_regression_results, type = "latex",
