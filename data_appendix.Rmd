@@ -12,6 +12,7 @@ knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
 library(summarytools)
 library(sf)
+library(stargazer)
 
 systemInfo <- Sys.info()
 if (systemInfo[[1]] == "Windows") {
@@ -148,7 +149,7 @@ oz_hourly <- oz_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone") %>%
   mutate(hour = as.numeric(str_remove(hour,"OZ1hr"))) %>%
-  mutate(after = date=="02/01/2004")
+  mutate(after = date=="03/01/2004")
 ```
 
 ```{r read in co data, echo = T}
@@ -165,7 +166,7 @@ co_hourly <- co_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon monoxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
-  mutate(after = date=="02/01/2004")
+  mutate(after = date=="03/01/2004")
 
 ```
 
@@ -183,7 +184,7 @@ so2_hourly <- so2_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur dioxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
-  mutate(after = date=="02/01/2004")
+  mutate(after = date=="03/01/2004")
 
 ```
 
@@ -201,7 +202,7 @@ nox_hourly <- nox_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous oxides") %>%
   mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
-  mutate(after = date=="02/01/2004")
+  mutate(after = date=="03/01/2004")
 
 ```
 
@@ -219,7 +220,7 @@ pm25_hourly <- pm25_data %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5") %>%
   mutate(hour = as.numeric(str_remove(hour,"PM251hr"))) %>%
-  mutate(after = date=="02/01/2004")
+  mutate(after = date=="03/01/2004")
 
 ```
 
@@ -241,7 +242,7 @@ weather_hourly <- weather_data %>%
                values_to = "value") %>% 
   mutate(hour = as.numeric(hour)) %>% 
   pivot_wider(names_from = "measurement", values_from = "value") %>%
-  mutate(after = date=="02/01/2004") %>%
+  mutate(after = date=="03/01/2004") %>%
   mutate(airs = AIRS)
 
 ```
@@ -319,12 +320,13 @@ distance_data$airs <- monitor_locations$AIRS
 
 distance_list <- distance_data %>% 
   pivot_longer(-airs, names_to = "metro_object", values_to = "distance") %>% 
-  mutate(distance = as.numeric(distance/1000)) 
+  mutate(distance = as.numeric(distance/1000)) %>%
+  mutate(exposed = distance<=3) %>%
+  mutate(airs = as.numeric(airs))
 
 distance_measure <- distance_list %>%
   group_by(airs) %>%
   summarize(avg_dist = mean(distance), min_dist = min(distance)) %>%
-  mutate(exposed = min_dist<=4) %>%
   mutate(airs = as.numeric(airs))
 ```
 
@@ -335,3 +337,21 @@ This section should include a description of all the variables that are used in 
 # Discussion of Data
 
 *This section should include a discussion of any data patterns you notice based on the summaries created in the code above.*
+
+```{r making oz_regression_data}
+oz_weather_data <- left_join(oz_hourly, weather_hourly)
+
+oz_regression_data <- left_join(oz_weather_data, distance_list)
+```
+
+```{r test running oz regression}
+
+oz_regression_results <- lm(ozone ~ after + hour*after + exposed + exposed*after + TMP1, 
+                         data = oz_regression_data)
+
+stargazer(oz_regression_results, type = "latex",
+          report = 'vct',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
