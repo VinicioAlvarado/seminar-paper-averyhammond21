@@ -164,7 +164,7 @@ co_hourly <- co_data %>%
   select(airs, ST_CODE, AQCR, date, contains("CO1hr")) %>%
   select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon monoxide") %>%
+  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon_monoxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
   mutate(after = date=="03/01/2004")
 
@@ -182,7 +182,7 @@ if (run_summary) {
 
 so2_hourly <- so2_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur dioxide") %>%
+  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur_dioxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
   mutate(after = date=="03/01/2004")
 
@@ -200,7 +200,7 @@ if (run_summary) {
 
 nox_hourly <- nox_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous oxides") %>%
+  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous_oxides") %>%
   mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
   mutate(after = date=="03/01/2004")
 
@@ -342,14 +342,31 @@ This section should include a description of all the variables that are used in 
 oz_regression_data <- merge(distance_list, merge(oz_hourly, weather_hourly))
 ```
 
-```{r test running oz regression}
+```{r running oz regression}
 
-oz_regression_results <- lm(ozone ~ after + hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
+oz_regression_results <- lm(ozone ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
                          data = oz_regression_data)
 
 stargazer(oz_regression_results, type = "latex",
-          report = 'vct',
+          report = 'vctp',
           intercept.bottom = F,
           header = F,
           digits = 5)
 ```
+
+```{r making co_regression_data}
+co_regression_data <- merge(distance_list, merge(co_hourly, weather_hourly))
+```
+
+```{r running co regression}
+
+co_regression_results <- lm(carbon_monoxide ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
+                         data = co_regression_data)
+
+stargazer(co_regression_results, type = "latex",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
+
