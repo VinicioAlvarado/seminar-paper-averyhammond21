@@ -1,6 +1,6 @@
 ---
 title: "Give your paper a descriptive title"
-author: "Your Name"
+author: "Avery Hammond"
 abstract: \singlespacing 1-2 sentences max setting up why your paper is important. One sentence that describes your research question. 1-2 sentences describing your data and methods. 1-2 sentences describing your main results. One sentence stating the implications (optional).
 thanks: "Use this space to acknowledge help you received completed the project. You should thank your peer reviewer and your code checker by name and acknowledge comments from your classmates in ECO 324 at Smith College Spring 2020, in addition to anyone else that provided useful assistance."
 header-includes:
@@ -17,6 +17,37 @@ knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
 library(summarytools)
 library(stargazer)
+library(sf)
+
+systemInfo <- Sys.info()
+if (systemInfo[[1]] == "Windows") {
+  run_summary <- T
+} else {
+    run_summary <- F}
+
+if (run_summary) {
+  st_options(plain.ascii = F,
+             style = "rmarkdown",
+             footnote = NA,
+             subtitle.emphasis = F,
+             dfSummary.silent = T,
+             dfSummary.valid.col = F,
+             dfSummary.style = "grid")
+  
+  #The following custom function simplifies the process of writing dfSummaries to html files
+  export_summary_table <- function(dfSummary_output){
+    data_info <- attr(dfSummary_output, "data_info")
+    ds_name <- data_info$Data.frame
+    print(dfSummary_output,
+          file = file.path("output", str_c(ds_name, "_summary.html")),
+          method = "browser",
+          report.title = ds_name)
+  }
+}
+```
+
+```{r set dfSummary css style, echo = F, include = F, eval = run_summary}
+st_css()
 ```
 
 # Introduction
@@ -38,49 +69,268 @@ We base much of our method on the work of Zheng et. al (2019), which uses a diff
 
 # Data and Methods
 
-An initial version of this section should be submitted for the Data & Methods Assignment (along with the completed Data Appendix). In completing these sections, refer to the assignment prompts. Again, make sure this descriptive text is removed before submission. Your literature review will remain in the document, but I will only assess your data and methods for this assignment.
-
 ## Conceptual or Theoretical Model
 
 You are encouraged to change the heading for this subsection to something that refers to your context like the example in the sample paper (A Model of Park Visitation). 
 
-If you are **not** using a regression model in your analysis, this section will likely need to be significantly longer.
 
-As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Few of these studies, however, have been conducted within the United States. 
+As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Few of these studies, however, have been conducted within the United States. As cities rebuild and expand their transit infrastructure, the short-term impact of public transport on air pollution within the United States is highly relevant in estimating the benefits of such an investment. The analysis of individual pollutants may also allow for more accuracy in finding exactly how the composition of air quality changes with subway expansion, as some pollutants may change significantly and others not at all. This information may prove to be significant when estimating more precise overall impacts of subway expansion, as the presence of each pollutant analyzed in this study carries different implications for public health and the environment. Because the regression in this study is weighted for distance from new Metro stations, the results are only applicable to areas within the radius of exposure. Although we do not generalize our findings in Houston to be applicable to all U.S. cities, this study, building on other international research papers, may provide a scientific basis for analyzing the air quality impact of public transit expansion in cities similar to Houston. 
+
 
 ## Data
 
-The data used in this analysis covers the years 2003 and 2004 in the city of Houston, Texas. For the pollution analysis, this study uses time-series data that records pollutant concentrations and weather measurements on an hourly basis from 2003 to 2004. Historical weather and pollutant data comes from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003-2004). This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas. This data was retrieved from the City of Houston GIS database (City of Houston, 2019).
+The data used in this analysis spans from 2003 to 2004 in the city of Houston, Texas. For air quality analysis, this study uses time-series data that records pollutant concentrations and weather measurements on an hourly basis from 2003 to 2004. This data covers CO, SO\_2, PM\_2.5, O\_3, as well as temperature, wind speed, and wind direction. Historical weather and pollutant data comes from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003-2004). This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas. This data was retrieved from the City of Houston GIS database, and includes the coordinates of each Metro station (City of Houston, 2019). 
+
+I use the coordinates in the new METRO Rail station and air quality monitor station data sets to compute the distances between monitors and Metro stations
+
+
+
+\begin{table}
+\centering
+\caption{Variable definitions}
+\label{variableDefinitions}
+\begin{tabular}{ll}
+\hline
+\hline
+Variable name      & Description                                                                \\    
+\hline
+exposed            & Air quality monitors located within 3 kilometers of a new subway station   \\
+after              & The date three months after the introduction of the METRO Rail, 03/01/2004 \\
+ozone              & Concentration of ozone in parts per billion                                \\
+nitrous_oxides     & Concentration of nitrous oxides in parts per billion                       \\
+sulfur_dioxide     & Concentration of sulfur dioxide in parts per billion                       \\
+carbon_monoxide    & Concentration of carbon monoxide in parts per billion                      \\
+PM2.5              & Concentration of PM\_2.5 in parts per billion.                             \\
+TMP1               & Temperature measured in degrees celsius                                    \\
+WDR1               & Wind direction measured in degrees compass                                 \\
+WSR1               & Wind speed measured in meters per second                                   \\
+\hline
+\end{tabular}
+\end{table}
  
 Following the guidelines in the assignment prompt, describe the key features of your data. This section should include a table of summary statistics for all numerical variables in your data and a discussion of important patterns or caveats.
 
-```{r making oz_regression_data}
-oz_regression_data <- merge(oz_hourly, merge(distance_measure, weather_hourly))
+```{r set up download and read function, echo = T}
+
+years = c("2003","2004")
+
+download_and_read_data <- function(filename){
+  
+  if (!file.exists(file.path("raw-data",str_c(filename, ".csv")))) {
+    
+    destfile = file.path("raw-data",str_c(filename, ".zip"))
+    
+    download.file(url = str_c("https://www.tceq.texas.gov/assets/public/compliance/monops/air/ozonehist/", filename, ".zip"), destfile = destfile)
+    
+    unzip(destfile, exdir = "raw-data", junkpaths = T)
+  }
+  this_data <- read_csv(file.path("raw-data", str_c(filename, ".csv")))
+}
 ```
 
-```{r test running oz regression}
+```{r read in ozone data, echo = T}
+oz_data <- lapply(str_c("oz_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("OZ1hr")) %>%
+  select(-OZ1hrvh, -OZ1hrvd, -OZ1hrpk, -OZ1hrav) 
 
-regression_results <- lm(ozone ~ after + hour*after + exposed + exposed*after + TMP1, 
-                         data = oz_regression_data)
+if (run_summary) {
+  export_summary_table(dfSummary(oz_data))
+} 
 
-stargazer(regression_results, type = "latex",
-          report = 'vct',
-          intercept.bottom = F,
-          header = F,
-          digits = 5)
+oz_hourly <- oz_data %>% 
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone") %>%
+  mutate(hour = as.numeric(str_remove(hour,"OZ1hr"))) %>%
+  mutate(after = date=="03/01/2004")
+```
+
+```{r read in co data, echo = T}
+co_data <- lapply(str_c("co_",years), download_and_read_data) %>% 
+  bind_rows() 
+
+if (run_summary) {
+  export_summary_table(dfSummary(co_data))
+}
+
+co_hourly <- co_data %>% 
+  select(airs, ST_CODE, AQCR, date, contains("CO1hr")) %>%
+  select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon_monoxide") %>%
+  mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
+  mutate(after = date=="03/01/2004")
+
+```
+
+```{r read in so2 data, echo = T}
+so2_data <- lapply(str_c("so2_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("SO21hr")) %>%
+  select(-SO21hrvh, -SO21hrvd, -SO21hrpk, -SO21hrav) 
+
+if (run_summary) {
+  export_summary_table(dfSummary(so2_data))
+}
+
+so2_hourly <- so2_data %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur_dioxide") %>%
+  mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
+  mutate(after = date=="03/01/2004")
+
+```
+
+```{r read in nox data, echo = T}
+nox_data <- lapply(str_c("nox_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(airs, ST_CODE, AQCR, date, contains("NOX1hr")) %>%
+  select(-NOX1hrvh, -NOX1hrvd, -NOX1hrpk, -NOX1hrav) 
+
+if (run_summary) {
+  export_summary_table(dfSummary(nox_data))
+}
+
+nox_hourly <- nox_data %>%
+  group_by(airs, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous_oxides") %>%
+  mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
+  mutate(after = date=="03/01/2004")
+
+```
+
+```{r read in pm25 data, echo = T}
+pm25_data <- lapply(str_c("pm25x_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(AIRS, ST_CODE, AQCR, date, contains("PM251hr")) %>%
+  select(-PM251hrvh, -PM251hrvd, -PM251hrpk, -PM251hrav) 
+
+if (run_summary) {
+  export_summary_table(dfSummary(pm25_data))
+}
+
+pm25_hourly <- pm25_data %>%
+  group_by(AIRS, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5") %>%
+  mutate(hour = as.numeric(str_remove(hour,"PM251hr"))) %>%
+  mutate(after = date=="03/01/2004")
+
+```
+
+```{r read in weather data, echo = T}
+weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>% 
+  bind_rows() %>%
+  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr"), contains("WDR1hr"), contains("WHR1hr")) %>%
+  select(-contains("hrvh"), -contains("hrvd"), -contains("hrav"), -contains("hrpk")) 
+
+if (run_summary) {
+  export_summary_table(dfSummary(weather_data))
+}
+
+weather_hourly <- weather_data %>%
+  group_by(AIRS, ST_CODE, AQCR, date) %>%
+  pivot_longer(cols = contains("hr"), 
+               names_to = c("measurement", "hour"),
+               names_pattern = "(.*)hr(.*)",
+               values_to = "value") %>% 
+  mutate(hour = as.numeric(hour)) %>% 
+  pivot_wider(names_from = "measurement", values_from = "value") %>%
+  mutate(after = date=="03/01/2004") %>%
+  mutate(airs = AIRS)
+
+```
+
+```{r read in metro data}
+metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv") %>% 
+  rename(latitude = Y, longitude = X)
+
+metro_data_geometry <- st_as_sf(metro_data, coords = c("longitude", "latitude"),
+                                crs = 4326) %>% 
+  filter(Label == 1) %>% 
+  select(OBJECTID)
+
+colnames(metro_data) [1] <- "latitude"
+
+colnames(metro_data) [2] <- "longitude"
+
+colnames(metro_data) [9] <- "service_year"
+
+# Note: most stations appear to be in the data twice, once with label = 1, once with label = 0
+# The two rows have slightly different lat/long characteristics. It might be worth checking
+#the data to see what this might mean and which one you really want.
+
+```
+
+```{r read-in monitor location data}
+monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>% 
+  mutate(longitude = -LONG, latitude = LATT) %>% 
+  select(AIRS,TNRCCRNM, longitude, latitude) %>% 
+  filter(TNRCCRNM == "Houston") %>% 
+  filter(!is.na(longitude)) %>% 
+  filter(longitude != 0) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+```
+
+```{r compute distances between monitors}
+distances <- st_distance(monitor_locations, metro_data_geometry)
+colnames(distances) <- metro_data_geometry$OBJECTID
+distance_data <- as_tibble(distances)
+distance_data$airs <- monitor_locations$AIRS 
+
+distance_list <- distance_data %>% 
+  pivot_longer(-airs, names_to = "metro_object", values_to = "distance") %>% 
+  mutate(distance = as.numeric(distance/1000)) %>%
+  mutate(exposed = distance<=3) %>%
+  mutate(airs = as.numeric(airs))
+
+distance_measure <- distance_list %>%
+  group_by(airs) %>%
+  summarize(avg_dist = mean(distance), min_dist = min(distance)) %>%
+  mutate(airs = as.numeric(airs))
 ```
 
 ## Model Specification
 
 This section should explain and justify your empirical model specification. It should include an explicit statement of your regression model in a similar format as the one in the sample paper:
 
-$pollution_{it} = \alpha_{0} + \beta_{i} + \alpha_{1t}\beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}$
+$pollution_{it} = \alpha_{0} + \beta_{i} + \alpha_{1t}\beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}weather_{t} + \epsilon_{imy}$
 
-\beta_{2}svr\_p10_{imy}
 where $i$ indexes parks, $m$ indexes month of the year, and $y$ indexes year. (Make sure you include subscript indices and explain what they mean). As long as the variable names are the same ones you used above, you do not need to explain them again here. Describe any fixed effects you use include and the justification for using them. Explain how the coefficients in your regression model will help answer your research question.
 
 # Results & Discussion
 
+```{r making oz_regression_data}
+oz_regression_data <- merge(distance_list, merge(oz_hourly, weather_hourly))
+```
+
+```{r running oz regression}
+
+oz_regression_results <- lm(ozone ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
+                         data = oz_regression_data)
+
+stargazer(oz_regression_results, type = "latex",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
+
+```{r making co_regression_data}
+co_regression_data <- merge(distance_list, merge(co_hourly, weather_hourly))
+```
+
+```{r running co regression}
+
+co_regression_results <- lm(carbon_monoxide ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
+                         data = co_regression_data)
+
+stargazer(co_regression_results, type = "latex",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
 
 Present your results here and discuss them. Make sure to consider the magnitude of your effects. This requires you to understand your data. Consider using the standard deviation of your variables to give readers a sense of the size of the effects.
 
