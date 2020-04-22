@@ -1,14 +1,20 @@
 ---
 title: "Give your paper a descriptive title"
 author: "Avery Hammond"
-abstract: \singlespacing 1-2 sentences max setting up why your paper is important. One sentence that describes your research question. 1-2 sentences describing your data and methods. 1-2 sentences describing your main results. One sentence stating the implications (optional).
-thanks: "Use this space to acknowledge help you received completed the project. You should thank your peer reviewer and your code checker by name and acknowledge comments from your classmates in ECO 324 at Smith College Spring 2020, in addition to anyone else that provided useful assistance."
+abstract: \singlespacing 1-2 sentences max setting up why your paper is important.
+  One sentence that describes your research question. 1-2 sentences describing your
+  data and methods. 1-2 sentences describing your main results. One sentence stating
+  the implications (optional).
+thanks: Use this space to acknowledge help you received completed the project. You
+  should thank your peer reviewer and your code checker by name and acknowledge comments
+  from your classmates in ECO 324 at Smith College Spring 2020, in addition to anyone
+  else that provided useful assistance.
 header-includes:
-   - \usepackage{setspace}
-   - \doublespacing
-output: 
+- \usepackage{setspace}
+- \doublespacing
+output:
   pdf_document:
-    number_sections: true
+    number_sections: yes
 bibliography: template.bib
 ---
 
@@ -17,73 +23,40 @@ knitr::opts_chunk$set(results = 'asis', cache = F)
 library(tidyverse)
 library(summarytools)
 library(stargazer)
-library(sf)
 
-systemInfo <- Sys.info()
-if (systemInfo[[1]] == "Windows") {
-  run_summary <- T
-} else {
-    run_summary <- F}
-
-if (run_summary) {
-  st_options(plain.ascii = F,
-             style = "rmarkdown",
-             footnote = NA,
-             subtitle.emphasis = F,
-             dfSummary.silent = T,
-             dfSummary.valid.col = F,
-             dfSummary.style = "grid")
-  
-  #The following custom function simplifies the process of writing dfSummaries to html files
-  export_summary_table <- function(dfSummary_output){
-    data_info <- attr(dfSummary_output, "data_info")
-    ds_name <- data_info$Data.frame
-    print(dfSummary_output,
-          file = file.path("output", str_c(ds_name, "_summary.html")),
-          method = "browser",
-          report.title = ds_name)
-  }
-}
 ```
 
-```{r set dfSummary css style, echo = F, include = F, eval = run_summary}
-st_css()
-```
 
 # Introduction
 
 Follow the introduction "formula" we developed in class to write your introduction. A well written introduction is relatively short and accomplishes the following tasks:
-
+ TALK ABOUT NITROUS OXIDES, HEALTH EFFECTS, ETC
 - Motivates the importance of the research question
 - Clearly states the research question, the methods, and the main findings
 
 # Literature Review
 
-While it has become common in economic journal articles to include the literature review in a somewhat expanded introduction, we will continue to have a separate section for the literature review. You will submit an initial version in the Literature Review assignment. Although it will look somewhat messy, I encourage you to use this template to complete that assignment. 
+This paper expands on much of the existing literature regarding the impact of public transit expansion on local air quality in urban settings. Many recent studies have found a correlation between subway expansion and air quality improvement (eg. Titos et al., 2015, Bel et al., 2018, Zheng et al., 2019, Li et al., 2019) Many papers have analyzed the impact of public buses in particular, with Titos et al. (2015) finding black carbon and PM10 reductions of 37% and 33% respectively after the implementation of a new public bus system in Granada, Spain. Bel et al. (2018) have also found a 7.17% reduction in the short-term of air pollution concentrations in the areas surrounding Mexico City's new Metrobus line. This paper varies from these works both in the type of public transit and the length of time analyzed. While users of public transit often utilize both buses and rail systems in their commutes, this study focuses specifically on lightrail systems, such as in Houston, which allow for higher occupancy than individual buses. This study further extends the window of analysis to one year before and after the introduction of the METRO Rail to better estimate the medium-term effects of lightrail expansion. 
 
-Before submitting the literature review assignment, remove all the placeholder and descriptive text in this section and replace it with your literature review. Remember to follow the guidelines in the assignment prompt, which is based on the literature review assignment described in @marshall2019writing. **You should leave the placeholder text in other sections unless you have begun working in the other sections.** When you submit the literature review, your grade will be based on only information appearing in the literature review section of the document, but you are free to begin work on other sections of the paper and include those in your repository.
-
-This paper expands on much of the existing literature regarding the impact of public transit expansion on local air quality in urban settings. Recent papers have analyzed the impact of public buses in particular, with Titos et al. (2015) finding black carbon and PM10 reductions of 37% and 33% respectively after the implementation of a new public bus system in Granada, Spain. Bel et al. (2018) have also found a 7.17% reduction in the short-term of air pollution concentrations in the areas surrounding Mexico City's new Metrobus line. This paper 
-
-We base much of our method on the work of Zheng et. al (2019), which uses a difference-in-difference model to examine the impact of a new subway line in Changsha, China, on individual pollutant concentrations within areas surrounding the new subway stations. Their difference-in-difference model extends to one year before and after the subway expansion to measure the medium-term effects on air pollution in the affected areas. This paper deviates most notably from the work of Zheng et al. (2019) in this sense, as we utilize a 3-month difference-in-difference period on either side of METRO Rail expansion to determine more precisely the short-term effects on air pollutant concentrations. 
+We base much of our method on the works of Zheng et al. (2019), and Li et al. (2019),  both of which use difference-in-difference models. Zheng et al. (2019) examines the impact of a new subway line in Changsha, China, on individual pollutant concentrations within areas surrounding the new subway stations. Their difference-in-difference model also includes one year before and after the subway expansion, which this study mirrors both to measure the medium-term effects on air pollution in the affected areas and to avoid seasonal variation in air quality that may impact results. Zheng et al. (2019) find an 18.1% greater reduction in carbon monoxide in areas close to the new subway line compared to more remote areas, but find no significant impact on PM_2.5 or O_3. Li et al. (2019) also use a difference-in-difference model to estimate the impact of an increase in subway density on local air quality in Beijing, China. The authors use both the API (Air Pollution Index) and AQI (Air Quality Index) in their analysis and find that a one standard deviation increase in subway density results in a 1.5% decrease of air pollution concentration in the long-term. This paper applies a difference-in-difference model similar to both Li et al. (2019) and Zheng et al. (2019), weighted for distance between air quality monitors and new subway station locations. 
 
 # Data and Methods
 
-## Conceptual or Theoretical Model
+```{r loading data}
+load("processed-data/analysis_data.RData")
+```
 
-You are encouraged to change the heading for this subsection to something that refers to your context like the example in the sample paper (A Model of Park Visitation). 
 
+## A Theoretical Model of NO_X Concentrations
 
-As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Few of these studies, however, have been conducted within the United States. As cities rebuild and expand their transit infrastructure, the short-term impact of public transport on air pollution within the United States is highly relevant in estimating the benefits of such an investment. The analysis of individual pollutants may also allow for more accuracy in finding exactly how the composition of air quality changes with subway expansion, as some pollutants may change significantly and others not at all. This information may prove to be significant when estimating more precise overall impacts of subway expansion, as the presence of each pollutant analyzed in this study carries different implications for public health and the environment. Because the regression in this study is weighted for distance from new Metro stations, the results are only applicable to areas within the radius of exposure. Although we do not generalize our findings in Houston to be applicable to all U.S. cities, this study, building on other international research papers, may provide a scientific basis for analyzing the air quality impact of public transit expansion in cities similar to Houston. 
+As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Some studies (eg. Titos et al., 2015, Zheng et al., 2019) attribute the improvement in air quality to a decrease in traffic congestion, as access to public transit may reduce the need for single-occupancy vehicle travel and therefore decrease vehicle emissions. Others (Li et al., 2019) estimate the cost-benefits of subway expansion and the public health impact of air quality improvement. This study focuses on the nitrogen oxides pollutant group, which are products of vehicle emissions and known respiratory irritants. Because exposure to nitrogen oxides can result in long-term health effects, its inclusion in air quality analyses is highly relevant [CITE NIH SOURCE HERE]. Although I do not assume the findings in this study to be applicable to all U.S. cities, these results may provide a general notion of how nitrogen oxides in particular are impacted by lightrail transit expansion in cities similar to Houston.
 
 
 ## Data
 
-The data used in this analysis spans from 2003 to 2004 in the city of Houston, Texas. For air quality analysis, this study uses time-series data that records pollutant concentrations and weather measurements on an hourly basis from 2003 to 2004. This data covers CO, SO\_2, PM\_2.5, O\_3, as well as temperature, wind speed, and wind direction. Historical weather and pollutant data comes from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003-2004). This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas. This data was retrieved from the City of Houston GIS database, and includes the coordinates of each Metro station (City of Houston, 2019). 
+The time period analyzed in this study spans from 2003 to 2004 in Houston, Texas metropolitan area. Time-series data covering all hourly weather measurements and pollutant concentrations and cross-sectional data containing the locations of air quality monitors are retrieved from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003). This data was used to create the dummy variable "after," which is equal to 1 for all hourly nitrogen\_oxides and weather measurements after the introduction of the METRO Rail system on January 1, 2004. 
 
-I use the coordinates in the new METRO Rail station and air quality monitor station data sets to compute the distances between monitors and Metro stations
-
-
+This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas, retrieved from the City of Houston GIS database (City of Houston, 2019). I use the coordinates of the new METRO Rail stations and the site data of air quality monitors to compute the distances between each METRO station and the city's air quality monitors. From this, the "exposed" dummy variable was created for air quality monitors within 10 kilometers of a new METRO station. 
 
 \begin{table}
 \centering
@@ -95,13 +68,10 @@ I use the coordinates in the new METRO Rail station and air quality monitor stat
 Variable name      & Description                                                                \\    
 \hline
 exposed            & Air quality monitors located within 3 kilometers of a new subway station   \\
-after              & The date three months after the introduction of the METRO Rail, 03/01/2004 \\
+after              & Dates following the introduction of the METRO Rail on 01/01/2004           \\
 ozone              & Concentration of ozone in parts per billion                                \\
-nitrous_oxides     & Concentration of nitrous oxides in parts per billion                       \\
-sulfur_dioxide     & Concentration of sulfur dioxide in parts per billion                       \\
-carbon_monoxide    & Concentration of carbon monoxide in parts per billion                      \\
-PM2.5              & Concentration of PM\_2.5 in parts per billion.                             \\
-TMP1               & Temperature measured in degrees celsius                                    \\
+nitrogen$_oxides   & Concentration of nitrogen oxides in parts per billion                      \\       
+TMP1               & Temperature measured in degrees celcius                                    \\
 WDR1               & Wind direction measured in degrees compass                                 \\
 WSR1               & Wind speed measured in meters per second                                   \\
 \hline
@@ -110,222 +80,36 @@ WSR1               & Wind speed measured in meters per second                   
  
 Following the guidelines in the assignment prompt, describe the key features of your data. This section should include a table of summary statistics for all numerical variables in your data and a discussion of important patterns or caveats.
 
-```{r set up download and read function, echo = T}
+```{r creating nox summary table}
 
-years = c("2003","2004")
+nox_summary_data <- nox_regression_data %>%
+   select(nitrogen_oxides, exposed, after, WSR1, TMP1, WDR1)
 
-download_and_read_data <- function(filename){
-  
-  if (!file.exists(file.path("raw-data",str_c(filename, ".csv")))) {
-    
-    destfile = file.path("raw-data",str_c(filename, ".zip"))
-    
-    download.file(url = str_c("https://www.tceq.texas.gov/assets/public/compliance/monops/air/ozonehist/", filename, ".zip"), destfile = destfile)
-    
-    unzip(destfile, exdir = "raw-data", junkpaths = T)
-  }
-  this_data <- read_csv(file.path("raw-data", str_c(filename, ".csv")))
-}
-```
-
-```{r read in ozone data, echo = T}
-oz_data <- lapply(str_c("oz_",years), download_and_read_data) %>% 
-  bind_rows() %>%
-  select(airs, ST_CODE, AQCR, date, contains("OZ1hr")) %>%
-  select(-OZ1hrvh, -OZ1hrvd, -OZ1hrpk, -OZ1hrav) 
-
-if (run_summary) {
-  export_summary_table(dfSummary(oz_data))
-} 
-
-oz_hourly <- oz_data %>% 
-  group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone") %>%
-  mutate(hour = as.numeric(str_remove(hour,"OZ1hr"))) %>%
-  mutate(after = date=="03/01/2004")
-```
-
-```{r read in co data, echo = T}
-co_data <- lapply(str_c("co_",years), download_and_read_data) %>% 
-  bind_rows() 
-
-if (run_summary) {
-  export_summary_table(dfSummary(co_data))
-}
-
-co_hourly <- co_data %>% 
-  select(airs, ST_CODE, AQCR, date, contains("CO1hr")) %>%
-  select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
-  group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon_monoxide") %>%
-  mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
-  mutate(after = date=="03/01/2004")
+stargazer(nox_summary_data, type = "latex",
+          label = "SummaryStats",
+          title = "Summary Statistics",
+          header = F,
+          digits = 2)
 
 ```
 
-```{r read in so2 data, echo = T}
-so2_data <- lapply(str_c("so2_",years), download_and_read_data) %>% 
-  bind_rows() %>%
-  select(airs, ST_CODE, AQCR, date, contains("SO21hr")) %>%
-  select(-SO21hrvh, -SO21hrvd, -SO21hrpk, -SO21hrav) 
-
-if (run_summary) {
-  export_summary_table(dfSummary(so2_data))
-}
-
-so2_hourly <- so2_data %>%
-  group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur_dioxide") %>%
-  mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
-  mutate(after = date=="03/01/2004")
-
-```
-
-```{r read in nox data, echo = T}
-nox_data <- lapply(str_c("nox_",years), download_and_read_data) %>% 
-  bind_rows() %>%
-  select(airs, ST_CODE, AQCR, date, contains("NOX1hr")) %>%
-  select(-NOX1hrvh, -NOX1hrvd, -NOX1hrpk, -NOX1hrav) 
-
-if (run_summary) {
-  export_summary_table(dfSummary(nox_data))
-}
-
-nox_hourly <- nox_data %>%
-  group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous_oxides") %>%
-  mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
-  mutate(after = date=="03/01/2004")
-
-```
-
-```{r read in pm25 data, echo = T}
-pm25_data <- lapply(str_c("pm25x_",years), download_and_read_data) %>% 
-  bind_rows() %>%
-  select(AIRS, ST_CODE, AQCR, date, contains("PM251hr")) %>%
-  select(-PM251hrvh, -PM251hrvd, -PM251hrpk, -PM251hrav) 
-
-if (run_summary) {
-  export_summary_table(dfSummary(pm25_data))
-}
-
-pm25_hourly <- pm25_data %>%
-  group_by(AIRS, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5") %>%
-  mutate(hour = as.numeric(str_remove(hour,"PM251hr"))) %>%
-  mutate(after = date=="03/01/2004")
-
-```
-
-```{r read in weather data, echo = T}
-weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>% 
-  bind_rows() %>%
-  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr"), contains("WDR1hr"), contains("WHR1hr")) %>%
-  select(-contains("hrvh"), -contains("hrvd"), -contains("hrav"), -contains("hrpk")) 
-
-if (run_summary) {
-  export_summary_table(dfSummary(weather_data))
-}
-
-weather_hourly <- weather_data %>%
-  group_by(AIRS, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("hr"), 
-               names_to = c("measurement", "hour"),
-               names_pattern = "(.*)hr(.*)",
-               values_to = "value") %>% 
-  mutate(hour = as.numeric(hour)) %>% 
-  pivot_wider(names_from = "measurement", values_from = "value") %>%
-  mutate(after = date=="03/01/2004") %>%
-  mutate(airs = AIRS)
-
-```
-
-```{r read in metro data}
-metro_data <- read_csv("raw-data/COH_METRO_RAIL_STATION_current.csv") %>% 
-  rename(latitude = Y, longitude = X)
-
-metro_data_geometry <- st_as_sf(metro_data, coords = c("longitude", "latitude"),
-                                crs = 4326) %>% 
-  filter(Label == 1) %>% 
-  select(OBJECTID)
-
-colnames(metro_data) [1] <- "latitude"
-
-colnames(metro_data) [2] <- "longitude"
-
-colnames(metro_data) [9] <- "service_year"
-
-# Note: most stations appear to be in the data twice, once with label = 1, once with label = 0
-# The two rows have slightly different lat/long characteristics. It might be worth checking
-#the data to see what this might mean and which one you really want.
-
-```
-
-```{r read-in monitor location data}
-monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>% 
-  mutate(longitude = -LONG, latitude = LATT) %>% 
-  select(AIRS,TNRCCRNM, longitude, latitude) %>% 
-  filter(TNRCCRNM == "Houston") %>% 
-  filter(!is.na(longitude)) %>% 
-  filter(longitude != 0) %>% 
-  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-
-```
-
-```{r compute distances between monitors}
-distances <- st_distance(monitor_locations, metro_data_geometry)
-colnames(distances) <- metro_data_geometry$OBJECTID
-distance_data <- as_tibble(distances)
-distance_data$airs <- monitor_locations$AIRS 
-
-distance_list <- distance_data %>% 
-  pivot_longer(-airs, names_to = "metro_object", values_to = "distance") %>% 
-  mutate(distance = as.numeric(distance/1000)) %>%
-  mutate(exposed = distance<=3) %>%
-  mutate(airs = as.numeric(airs))
-
-distance_measure <- distance_list %>%
-  group_by(airs) %>%
-  summarize(avg_dist = mean(distance), min_dist = min(distance)) %>%
-  mutate(airs = as.numeric(airs))
-```
+Table \ref{SummaryStats} displays the summary statistics for the explanatory and independent variables. The range in hourly concentrations of nitrogen\_oxides is especially notable, spanning from 0 to 809 parts per billion. Although this maximum value is likely an outlier when compared to the 75th percentile and the mean, such concentrations are highly toxic to humans even for a short period. For the most part, however, the concentrations of nitrogen\_oxides appear to be well within the EPA's 1-hour Primary National Ambient Air Quality Standards of 100 parts per billion. Since "after" and "exposed" are both dummy variables, their summary statistics are not particularly relevant. 
 
 ## Model Specification
 
-This section should explain and justify your empirical model specification. It should include an explicit statement of your regression model in a similar format as the one in the sample paper:
+$nitrous\_oxides_{it} = \alpha_{0} + \beta_{0} + \beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}hour + \beta_{5}TMP1_{it} +  \beta_{6}WSR1_{it} + \beta_{7}WDR1_{it} + \epsilon_{it}$
 
-$pollution_{it} = \alpha_{0} + \beta_{i} + \alpha_{1t}\beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}weather_{t} + \epsilon_{imy}$
+where $i$ indexes air quality monitors and $t$ indexes hour and date. The hour variable is included as a fixed effect to control for time of day, as pollutant concentrations are expected to vary throughout a 24-hour period. TMP1, WSR1, and WDR1 are included as fixed effects because temperature, wind speed, and wind direction are known to have significant impacts on air quality and pollution levels. These variables also help control for weather variation throughout the year that may cause exogenous fluctuations in pollutant concentrations. The coefficient of after*exposed will be most relevant in determining the effect of lightrail system expansion on nitrous\_oxides concentrations, as it will apply only to measurements taken by air quality monitors within a 10 kilometer radius of a new METRO station during the station's first year of operation. Its coefficient will therefore inform the degree to which the concentrations of nitrous\_oxides changed over this time period as a result of exposure to the new METRO Rail system.
 
-where $i$ indexes parks, $m$ indexes month of the year, and $y$ indexes year. (Make sure you include subscript indices and explain what they mean). As long as the variable names are the same ones you used above, you do not need to explain them again here. Describe any fixed effects you use include and the justification for using them. Explain how the coefficients in your regression model will help answer your research question.
 
 # Results & Discussion
 
-```{r making oz_regression_data}
-oz_regression_data <- merge(distance_list, merge(oz_hourly, weather_hourly))
-```
+```{r running nox regression}
 
-```{r running oz regression}
+nox_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+                         data = nox_regression_data)
 
-oz_regression_results <- lm(ozone ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
-                         data = oz_regression_data)
-
-stargazer(oz_regression_results, type = "latex",
-          report = 'vctp',
-          intercept.bottom = F,
-          header = F,
-          digits = 5)
-```
-
-```{r making co_regression_data}
-co_regression_data <- merge(distance_list, merge(co_hourly, weather_hourly))
-```
-
-```{r running co regression}
-
-co_regression_results <- lm(carbon_monoxide ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
-                         data = co_regression_data)
-
-stargazer(co_regression_results, type = "latex",
+stargazer(nox_regression_results, type = "latex",
           report = 'vctp',
           intercept.bottom = F,
           header = F,
