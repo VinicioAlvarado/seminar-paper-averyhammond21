@@ -48,7 +48,7 @@ load("processed-data/analysis_data.RData")
 
 ## A Theoretical Model of NO_X Concentrations
 
-As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Some studies (eg. Titos et al., 2015, Zheng et al., 2019) attribute the improvement in air quality to a decrease in traffic congestion as individuals transition from private to public transit, which may reduce single-occupancy-vehicle emissions. This study looks specifically at the major vehicular pollutants NO_{x}, CO, SO_{2}, and PM_{2.5}. The analysis of these pollutants in particular, rather than overall air quality measures, is necessary in order to examine the relationship between vehicle-induced air pollution and nearby public transport expansion, as generalized air quality indicators may be influenced by non-vehicular emissions. By analyzing pollutants individually, I aim to determine more precisely how air quality changes with local introduction of public transit in Houston, as some pollutants may change significantly and others not at all. Since each of these pollutants pose different threats to public health and the environment, the distinction between them is highly relevant. 
+As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Very few of these studies, however, have been conducted within the U.S. Some studies (eg. Titos et al., 2015, Zheng et al., 2019) attribute the improvement in air quality to decreased traffic congestion as individuals transition from private to public transport, which may reduce single-occupancy-vehicle emissions. This study looks specifically at the major vehicular pollutants NO_{x}, CO, SO_{2}, and PM_{2.5}. The analyses of these distinct pollutants are necessary in order to examine the relationship between vehicle-induced air pollution and nearby public transport expansion, because overall air quality indicators may be influenced by non-vehicular emissions. By analyzing pollutants individually, I aim to determine more precisely how air quality changes with local introduction of public transit in Houston, as some pollutants may change significantly and others not at all. Since each of these pollutants pose different threats to public health and the environment, the distinction between them is highly relevant. 
 
 
 expansion Others (Li et al., 2019) estimate the cost-benefits of subway expansion and the public health impact of air quality improvement.  Although I do not assume the findings in this study to be applicable to all U.S. cities, these results may provide a general notion of how nitrogen oxides in particular are impacted by lightrail transit expansion in cities similar to Houston.
@@ -101,7 +101,7 @@ Table \ref{SummaryStats} displays the summary statistics for the explanatory and
 
 $nitrous\_oxides_{it} = \alpha_{0} + \beta_{0} + \beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}hour + \beta_{5}TMP1_{it} +  \beta_{6}WSR1_{it} + \beta_{7}WDR1_{it} + \epsilon_{it}$
 
-where $i$ indexes air quality monitors and $t$ indexes hour and date. The hour variable is included as a fixed effect to control for time of day, as pollutant concentrations are expected to vary throughout a 24-hour period. TMP1, WSR1, and WDR1 are included as fixed effects because temperature, wind speed, and wind direction are known to have significant impacts on air quality and pollution levels. These variables also help control for weather variation throughout the year that may cause exogenous fluctuations in pollutant concentrations. The coefficient of after*exposed will be most relevant in determining the effect of lightrail system expansion on nitrous\_oxides concentrations, as it will apply only to measurements taken by air quality monitors within a 10 kilometer radius of a new METRO station during the station's first year of operation. Its coefficient will therefore inform the degree to which the concentrations of nitrous\_oxides changed over this time period as a result of exposure to the new METRO Rail system.
+where $i$ indexes air quality monitors and $t$ indexes hour and date. The hour variable is included as a fixed effect to control for time of day, as pollutant concentrations are expected to vary throughout a 24-hour period. TMP1, WSR1, and WDR1 are included as fixed effects because temperature, wind speed, and wind direction are known to have significant impacts on air quality and pollution levels. These variables also help control for weather variation throughout the year that may cause exogenous fluctuations in pollutant concentrations. The coefficient of after*exposed will be most relevant in determining the effect of lightrail system expansion on pollutant concentrations, as it will apply only to measurements taken by air quality monitors within a 10 kilometer radius of a new METRO station during the station's first year of operation. Its coefficient will therefore inform the degree to which the concentrations of each pollutant changed over this time period as a result of exposure to the new METRO Rail system.
 
 
 # Results & Discussion
@@ -121,19 +121,6 @@ stargazer(nox_1yr_regression_results, type = "latex",
 ```
 
 
-```{r running nox regression}
-nox_3month_regression_data <- nox_regression_data %>%
-   filter(Date >= as.Date("2003-10-01") & Date < as.Date("2004-04-01"))
-
-nox_3month_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
-                         data = nox_3month_regression_data)
-
-stargazer(nox_3month_regression_results, type = "text",
-          report = 'vctp',
-          intercept.bottom = F,
-          header = F,
-          digits = 5)
-```
 Present your results here and discuss them. Make sure to consider the magnitude of your effects. This requires you to understand your data. Consider using the standard deviation of your variables to give readers a sense of the size of the effects.
 
 Make sure you return to your research question and discuss what your results tell us about the question you set out to answer.
