@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, echo = F, message = F}
-knitr::opts_chunk$set(results = 'asis', cache = F)
+knitr::opts_chunk$set(results = 'asis', cache = T)
 library(tidyverse)
 library(summarytools)
 library(sf)
@@ -107,7 +107,7 @@ Create a bullet list with the name of each variable in the dataset followed by a
 - **hour:** The hour of the observation.
 - **AQCR:** Air Quality Control Region code identifying a group of counties that share geographical or pollutant concentration characteristics based on a common pollutant source.
 - **ozone:** Concentration of ozone in parts per billion.
-- **nitrous oxides:** Concentration of nitrous oxides in parts per billion.
+- **nitrogen oxides:** Concentration of nitrogen oxides in parts per billion.
 - **carbon monoxide:** Concentration of carbon monoxide in parts per billion.
 - **sulfur dioxide:** Concentration of sulfur dioxide in parts per billion.
 - **PM2.5:** Concentration of particulate matter 2.5 in parts per billion.
@@ -149,7 +149,8 @@ oz_hourly <- oz_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("OZ1"), names_to = "hour", values_to = "ozone") %>%
   mutate(hour = as.numeric(str_remove(hour,"OZ1hr"))) %>%
-  mutate(after = date=="03/01/2004")
+  mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
+  mutate(after = Date >="2004/01/01") #JANUARY 1 CHANGE AND CODE CHANGE
 ```
 
 ```{r read in co data, echo = T}
@@ -166,7 +167,8 @@ co_hourly <- co_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon_monoxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
-  mutate(after = date=="03/01/2004")
+  mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
+  mutate(after = Date >="2004/01/01")
 
 ```
 
@@ -184,7 +186,8 @@ so2_hourly <- so2_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
   pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur_dioxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
-  mutate(after = date=="03/01/2004")
+  mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
+  mutate(after = Date >="2004/01/01")
 
 ```
 
@@ -200,9 +203,10 @@ if (run_summary) {
 
 nox_hourly <- nox_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrous_oxides") %>%
+  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrogen_oxides") %>%
   mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
-  mutate(after = date=="03/01/2004")
+  mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
+  mutate(after = Date >="2004/01/01")
 
 ```
 
@@ -218,9 +222,10 @@ if (run_summary) {
 
 pm25_hourly <- pm25_data %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2.5") %>%
+  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM2_5") %>%
   mutate(hour = as.numeric(str_remove(hour,"PM251hr"))) %>%
-  mutate(after = date=="03/01/2004")
+  mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
+  mutate(after = Date >="2004/01/01")
 
 ```
 
@@ -242,7 +247,8 @@ weather_hourly <- weather_data %>%
                values_to = "value") %>% 
   mutate(hour = as.numeric(hour)) %>% 
   pivot_wider(names_from = "measurement", values_from = "value") %>%
-  mutate(after = date=="03/01/2004") %>%
+  mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
+  mutate(after = Date >="2004/01/01") %>%
   mutate(airs = AIRS)
 
 ```
@@ -313,21 +319,21 @@ monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>%
 *This section should include a discussion of the processing and merging steps needed to create your basic data. The code to implement these steps should be included in chunks in this section. Once the final merged data has been created, you should use the dfSummary function again to summarize the data you will be using. You should also save a file containing all the objects you will use in your final analysis to the processed_data folder.*
 
 ```{r compute distances between monitors}
-distances <- st_distance(monitor_locations, metro_data_geometry)
-colnames(distances) <- metro_data_geometry$OBJECTID
+distances <- st_distance(monitor_locations, metro_data_geometry) #takes all monitor locations and all metro station locations and creates a matrix
+colnames(distances) <- metro_data_geometry$OBJECTID 
 distance_data <- as_tibble(distances)
 distance_data$airs <- monitor_locations$AIRS 
 
-distance_list <- distance_data %>% 
+distance_list <- distance_data %>% #instead of it being a matrix, we made it into a long list
   pivot_longer(-airs, names_to = "metro_object", values_to = "distance") %>% 
   mutate(distance = as.numeric(distance/1000)) %>%
-  mutate(exposed = distance<=3) %>%
   mutate(airs = as.numeric(airs))
 
-distance_measure <- distance_list %>%
+distance_measure <- distance_list %>% #now use this data frame
   group_by(airs) %>%
-  summarize(avg_dist = mean(distance), min_dist = min(distance)) %>%
-  mutate(airs = as.numeric(airs))
+  summarize(min_dist = min(distance)) %>%
+  mutate(airs = as.numeric(airs),
+         exposed = min_dist <= 10.5) #can add unexposed control variable if I want
 ```
 
 # Analysis Variables
@@ -339,34 +345,97 @@ This section should include a description of all the variables that are used in 
 *This section should include a discussion of any data patterns you notice based on the summaries created in the code above.*
 
 ```{r making oz_regression_data}
-oz_regression_data <- merge(distance_list, merge(oz_hourly, weather_hourly))
+oz_regression_data <- merge(distance_measure, merge(oz_hourly, weather_hourly))
+
+# works with exposed = 6km
 ```
 
 ```{r running oz regression}
 
-oz_regression_results <- lm(ozone ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
-                         data = oz_regression_data)
+oz_regression_results <- lm(ozone ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, data = oz_regression_data)
 
-stargazer(oz_regression_results, type = "latex",
+stargazer(oz_regression_results, type = "text",
           report = 'vctp',
           intercept.bottom = F,
           header = F,
           digits = 5)
 ```
 
+
 ```{r making co_regression_data}
-co_regression_data <- merge(distance_list, merge(co_hourly, weather_hourly))
+co_regression_data <- merge(distance_measure, merge(co_hourly, weather_hourly))
+
+# doesn't work w exposed = 9km
 ```
 
 ```{r running co regression}
 
-co_regression_results <- lm(carbon_monoxide ~ after + after*hour + exposed + exposed*after + TMP1 + WSR1 + WDR1, 
+co_regression_results <- lm(carbon_monoxide ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
                          data = co_regression_data)
 
-stargazer(co_regression_results, type = "latex",
+stargazer(co_regression_results, type = "text",
           report = 'vctp',
           intercept.bottom = F,
           header = F,
           digits = 5)
+```
+
+```{r making nox_regression_data}
+nox_regression_data <- merge(distance_measure, merge(nox_hourly, weather_hourly))
+
+# work w exposed = 10km
+```
+
+```{r running nox regression}
+
+nox_regression_results <- lm(nitrous_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+                         data = nox_regression_data)
+
+stargazer(nox_regression_results, type = "text",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
+
+```{r making pm25_regression_data}
+pm25_regression_data <- merge(distance_measure, merge(pm25_hourly, weather_hourly))
+
+# doesn't work w exposed = 9km
+```
+
+```{r running PM2.5 regression}
+
+pm25_regression_results <- lm(PM2_5 ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+                         data = pm25_regression_data)
+
+stargazer(pm25_regression_results, type = "text",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
+
+```{r making so2_regression_data}
+so2_regression_data <- merge(distance_measure, merge(so2_hourly, weather_hourly))
+
+# works w exposed = 6km
+```
+
+```{r running so2 regression}
+
+so2_regression_results <- lm(sulfur_dioxide ~ exposed + after + after*exposed + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+                         data = so2_regression_data) 
+
+stargazer(so2_regression_results, type = "text",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
+
+
+```{r}
+save("nox_regression_data", "co_regression_data", "oz_regression_data", "pm25_regression_data", "so2_regression_data",  file = "processed-data/analysis_data.RData")
 ```
 
