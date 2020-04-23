@@ -435,6 +435,7 @@ stargazer(so2_regression_results, type = "text",
 ```
 
 
+
 ```{r}
 save("nox_regression_data", "co_regression_data", "oz_regression_data", "pm25_regression_data", "so2_regression_data",  file = "processed-data/analysis_data.RData")
 ```
