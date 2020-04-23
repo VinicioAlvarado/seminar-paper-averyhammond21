@@ -48,10 +48,7 @@ load("processed-data/analysis_data.RData")
 
 ## A Theoretical Model of NO_X Concentrations
 
-As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Very few of these studies, however, have been conducted within the U.S. Some studies (eg. Titos et al., 2015, Zheng et al., 2019) attribute the improvement in air quality to decreased traffic congestion as individuals transition from private to public transport, which may reduce single-occupancy-vehicle emissions. This study looks specifically at the major vehicular pollutants NO_{x}, CO, SO_{2}, and PM_{2.5}. The analyses of these distinct pollutants are necessary in order to examine the relationship between vehicle-induced air pollution and nearby public transport expansion, because overall air quality indicators may be influenced by non-vehicular emissions. By analyzing pollutants individually, I aim to determine more precisely how air quality changes with local introduction of public transit in Houston, as some pollutants may change significantly and others not at all. Since each of these pollutants pose different threats to public health and the environment, the distinction between them is highly relevant. 
-
-
-expansion Others (Li et al., 2019) estimate the cost-benefits of subway expansion and the public health impact of air quality improvement.  Although I do not assume the findings in this study to be applicable to all U.S. cities, these results may provide a general notion of how nitrogen oxides in particular are impacted by lightrail transit expansion in cities similar to Houston.
+As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Very few of these studies, however, have been conducted within the U.S. Some studies (eg. Titos et al., 2015, Zheng et al., 2019) attribute the improvement in air quality to decreased traffic congestion as individuals transition from private to public transport, which may reduce single-occupancy-vehicle emissions. This study looks specifically at the major vehicular pollutants NO_{x}, CO, SO_{2}, and PM_{2.5}. The analyses of these distinct pollutants are necessary in order to examine the relationship between vehicle-induced air pollution and nearby public transport expansion, because overall air quality indicators may be influenced by non-vehicular emissions. By analyzing pollutants individually, I aim to determine more precisely how air quality changes with local introduction of public transit in Houston, as some pollutants may change significantly and others not at all. Since each of these pollutants pose different threats to public health and the environment, the distinction between them is highly relevant. Although I do not assume the findings in this study to be applicable to all U.S. cities, these results may provide a general notion of how vehicle pollutants can be impacted by lightrail transit expansion in cities similar to Houston.
 
 
 ## Data
@@ -95,11 +92,24 @@ stargazer(nox_summary_data, type = "latex",
 
 ```
 
+```{r creating pm2.5 summary table}
+
+pm25_summary_data <- pm25_regression_data %>%
+   select(PM2_5, exposed, after, WSR1, TMP1, WDR1)
+
+stargazer(pm25_summary_data, type = "text",
+          label = "SummaryStats",
+          title = "Summary Statistics",
+          header = F,
+          digits = 2)
+
+```
+
 Table \ref{SummaryStats} displays the summary statistics for the explanatory and independent variables. The range in hourly concentrations of nitrogen\_oxides is especially notable, spanning from 0 to 809 parts per billion. Although this maximum value is likely an outlier when compared to the 75th percentile and the mean, such concentrations are highly toxic to humans even for a short period. For the most part, however, the concentrations of nitrogen\_oxides appear to be well within the EPA's 1-hour Primary National Ambient Air Quality Standards of 100 parts per billion. Since "after" and "exposed" are both dummy variables, their summary statistics are not particularly relevant. 
 
 ## Model Specification
 
-$nitrous\_oxides_{it} = \alpha_{0} + \beta_{0} + \beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}hour + \beta_{5}TMP1_{it} +  \beta_{6}WSR1_{it} + \beta_{7}WDR1_{it} + \epsilon_{it}$
+$pollutant_{it} = \alpha_{0} + \beta_{0} + \beta_{1}after + \beta_{2}exposed + \beta_{3}after*exposed + \beta_{4}hour + \beta_{5}TMP1_{it} +  \beta_{6}WSR1_{it} + \beta_{7}WDR1_{it} + \epsilon_{it}$
 
 where $i$ indexes air quality monitors and $t$ indexes hour and date. The hour variable is included as a fixed effect to control for time of day, as pollutant concentrations are expected to vary throughout a 24-hour period. TMP1, WSR1, and WDR1 are included as fixed effects because temperature, wind speed, and wind direction are known to have significant impacts on air quality and pollution levels. These variables also help control for weather variation throughout the year that may cause exogenous fluctuations in pollutant concentrations. The coefficient of after*exposed will be most relevant in determining the effect of lightrail system expansion on pollutant concentrations, as it will apply only to measurements taken by air quality monitors within a 10 kilometer radius of a new METRO station during the station's first year of operation. Its coefficient will therefore inform the degree to which the concentrations of each pollutant changed over this time period as a result of exposure to the new METRO Rail system.
 
