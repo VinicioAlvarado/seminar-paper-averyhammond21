@@ -104,23 +104,39 @@ where $i$ indexes air quality monitors and $t$ indexes hour and date. The hour v
 
 # Results & Discussion
 
-```{r running nox regression}
+In this section
 
-nox_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+```{r running 1 yr nox regression}
+
+nox_1yr_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
                          data = nox_regression_data)
 
-stargazer(nox_regression_results, type = "latex",
+stargazer(nox_1yr_regression_results, type = "text",
           report = 'vctp',
           intercept.bottom = F,
           header = F,
           digits = 5)
 ```
 
+
+```{r running nox regression}
+nox_3month_regression_data <- nox_regression_data %>%
+   filter(Date >= as.Date("2003-10-01") & Date < as.Date("2004-04-01"))
+
+nox_3month_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+                         data = nox_3month_regression_data)
+
+stargazer(nox_3month_regression_results, type = "text",
+          report = 'vctp',
+          intercept.bottom = F,
+          header = F,
+          digits = 5)
+```
 Present your results here and discuss them. Make sure to consider the magnitude of your effects. This requires you to understand your data. Consider using the standard deviation of your variables to give readers a sense of the size of the effects.
 
 Make sure you return to your research question and discuss what your results tell us about the question you set out to answer.
 
-*Note: if you are using RMarkdown to write your paper, I encourage you to conduct your analysis directly within this file.*
+
 
 # Conclusion
 
