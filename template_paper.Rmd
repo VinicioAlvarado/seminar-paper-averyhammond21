@@ -10,16 +10,17 @@ thanks: Use this space to acknowledge help you received completed the project. Y
   from your classmates in ECO 324 at Smith College Spring 2020, in addition to anyone
   else that provided useful assistance.
 header-includes:
-- \usepackage{setspace}
-- \doublespacing
+   - \usepackage{booktabs}
+   - \usepackage{setspace}
+   - \doublespacing
+   - \usepackage[labelfont=bf]{caption}
 output:
   pdf_document:
     number_sections: yes
-bibliography: template.bib
 ---
 
 ```{r setup, echo = F, message = F}
-knitr::opts_chunk$set(results = 'asis', cache = F)
+knitr::opts_chunk$set(results = 'asis', cache = F, echo = F)
 library(tidyverse)
 library(summarytools)
 library(stargazer)
@@ -54,7 +55,7 @@ As evidenced in the literature review, the introduction of public transit, parti
 
 ## Data
 
-The time period analyzed in this study spans from 2003 to 2004 in Houston, Texas metropolitan area. Time-series data covering all hourly weather measurements and pollutant concentrations and cross-sectional data containing the locations of air quality monitors are retrieved from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003). This data was used to create the dummy variable "after," which is equal to 1 for all hourly nitrogen\_oxides and weather measurements after the introduction of the METRO Rail system on January 1, 2004. 
+The time period analyzed in this study spans from 2003 to 2004 in Houston, Texas metropolitan area. Time-series data covering all hourly weather measurements and pollutant concentrations and cross-sectional data containing the locations of air quality monitors are retrieved from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003). This data was used to create the dummy variable "after," which is equal to 1 for all hourly nitrogen oxides and weather measurements after the introduction of the METRO Rail system on January 1, 2004. 
 
 This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas, retrieved from the City of Houston GIS database (City of Houston, 2019). I use the coordinates of the new METRO Rail stations and the site data of air quality monitors to compute the distances between each METRO station and the city's air quality monitors. From this, the "exposed" dummy variable was created for air quality monitors within 10 kilometers of a new METRO station. 
 
@@ -70,7 +71,7 @@ Variable name      & Description                                                
 exposed            & Air quality monitors located within 3 kilometers of a new subway station   \\
 after              & Dates following the introduction of the METRO Rail on 01/01/2004           \\
 ozone              & Concentration of ozone in parts per billion                                \\
-nitrogen$_oxides   & Concentration of nitrogen oxides in parts per billion                      \\       
+nitrogen\_oxides   & Concentration of nitrogen oxides in parts per billion                      \\       
 TMP1               & Temperature measured in degrees celcius                                    \\
 WDR1               & Wind direction measured in degrees compass                                 \\
 WSR1               & Wind speed measured in meters per second                                   \\
@@ -111,7 +112,7 @@ In this section
 nox_1yr_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
                          data = nox_regression_data)
 
-stargazer(nox_1yr_regression_results, type = "text",
+stargazer(nox_1yr_regression_results, type = "latex",
           report = 'vctp',
           intercept.bottom = F,
           header = F,
@@ -126,12 +127,25 @@ nox_3month_regression_data <- nox_regression_data %>%
 nox_3month_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
                          data = nox_3month_regression_data)
 
-stargazer(nox_3month_regression_results, type = "text",
+stargazer(nox_3month_regression_results, type = "latex",
           report = 'vctp',
           intercept.bottom = F,
           header = F,
           digits = 5)
 ```
+
+```{r creating a combined table of results}
+stargazer(nox_3month_regression_results, nox_1yr_regression_results,
+          type = "latex",
+          header = F,
+          digits = 5,
+          column.labels = c("3 months", "1 year"),
+          omit = "hour",
+          notes = "Hour fixed effects also included but coefficients are omitted here.",
+          notes.align = "l")
+
+```
+
 Present your results here and discuss them. Make sure to consider the magnitude of your effects. This requires you to understand your data. Consider using the standard deviation of your variables to give readers a sense of the size of the effects.
 
 Make sure you return to your research question and discuss what your results tell us about the question you set out to answer.

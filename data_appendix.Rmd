@@ -16,7 +16,7 @@ library(stargazer)
 
 systemInfo <- Sys.info()
 if (systemInfo[[1]] == "Windows") {
-  run_summary <- T
+  run_summary <- F
 } else {
     run_summary <- F}
 
@@ -388,7 +388,7 @@ nox_regression_data <- merge(distance_measure, merge(nox_hourly, weather_hourly)
 
 ```{r running nox regression}
 
-nox_regression_results <- lm(nitrous_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
+nox_regression_results <- lm(nitrogen_oxides ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR1, 
                          data = nox_regression_data)
 
 stargazer(nox_regression_results, type = "text",
