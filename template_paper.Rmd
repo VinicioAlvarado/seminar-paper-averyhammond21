@@ -187,10 +187,10 @@ stargazer(nox_regression_results, co_regression_results, pm25_regression_results
           title = "Regression Results",
           label = "regressionresults",
           header = F,
-          digits = 4,
+          digits = 2,
           omit = c("hour", "WDR"),
           column.sep.width = "0pt",
-          font.size = "footnotesize",
+          font.size = "scriptsize",
           single.row = FALSE,
           notes = "Hour fixed effects and wind direction fixed effects also included but coefficients are omitted here.",
           notes.align = "l")
