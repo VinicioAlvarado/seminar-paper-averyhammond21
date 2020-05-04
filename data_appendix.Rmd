@@ -1,5 +1,5 @@
 ---
-title: "Data Appendix to \"Name of your paper\""
+title: "Data Appendix to \"The Impact of Public Transit Introduction on Individual Air Pollutants in Houston, Texas\""
 author: "Avery Hammond"
 output: 
   pdf_document:
@@ -7,7 +7,7 @@ output:
     number_sections: true
 ---
 
-```{r setup, echo = F, message = F}
+```{r setup, echo = T, message = F}
 knitr::opts_chunk$set(results = 'asis', cache = T)
 library(tidyverse)
 library(summarytools)
@@ -29,7 +29,6 @@ if (run_summary) {
              dfSummary.valid.col = F,
              dfSummary.style = "grid")
   
-  #The following custom function simplifies the process of writing dfSummaries to html files
   export_summary_table <- function(dfSummary_output){
     data_info <- attr(dfSummary_output, "data_info")
     ds_name <- data_info$Data.frame
@@ -41,33 +40,19 @@ if (run_summary) {
 }
 ```
 
-```{r set dfSummary css style, echo = F, include = F, eval = run_summary}
+```{r set dfSummary css style, echo = T, include = F, eval = run_summary}
 st_css()
 ```
-# Appendix description
-*Your Data Appendix should begin with a brief statement explaining its purpose like the following one.*
 
-This Data Appendix documents the data used in "Paper Title". It was prepared in a Rmarkdown document that contains both the documentation and the R code used to prepare the data used in the final estimation. It also includes descriptive statistics for both the original data and the final dataset, with a discussion of any issues of note.
+# Appendix description
+
+This Data Appendix catalogs the data used in "The Impact of Public Transit Introduction on Individual Air Pollutants in Houston, Texas". It was prepared in a Rmarkdown document containing the documentation and R code used to prepare the data used in the final analysis. It additionally includes summary statistics for the final datasets, followed by a discussion of any issues or patterns of note.
 
 The datasets used directly by the final analysis are saved in `processed-data/` at the end of this file.
 
-*Note: this document structure will require you to re-run steps of your analysis multiple times. If your code takes a long time, please come talk with me about strategies to reduce run time or save earlier results.*
 
 # Instructions for Use
-This document includes instructions for how to create your Data Appendix. Outside of this section, instruction paragraphs are listed in *italics* (like the first paragraph above). Instructions should be removed before submission.
 
-To start creating your own data appendix, follow these steps: 
-
-1. Replace the title and author in the section at the top of the file (called the YAML).
-1. Commit your changes with a message like "customizing data appendix".
-1. Delete this instruction section of the document.
-1. Remove any other instructions in italics and examples from the completed sections of the document.
-
-Remember that you will submit your assignment by committing and then pushing your versions to your repository. I encourage you to commit your changes often as you work, but there are three specific points at which you need to both submit and push changes, corresponding to course deadlines:
-
-1. You must submit a version with the original data section completed by the Data Appendix 1 deadline. This will include the .Rmd file, the .pdf file, and the html data summary files stored in the output folder.
-2. You must submit a version with all parts completed by the Data Appendix 2 deadline.  
-3. You must submit a final version of this document that is consistent with your final paper by the final project deadline.  
 
 While creating your data appendix, refer regularly to the assignment descriptions posted on Moodle.
 
@@ -77,11 +62,13 @@ A few tips:
 - Make sure you have empty lines above and below section and subsection headings.
 - When creating numbered lists, you can number all items in your list with 1. Rmarkdown will number them sequentially when it creates your final document.
 
-#3 Raw data
+# Raw data
+
 *Each dataset you use will have its own documentation section. The next subsection in this document (Dataset description) is a template. You can copy this section and paste it into your document each time you need to add a section for a new dataset. Note that each line in the Dataset description section __must__ end with two spaces.* 
 This section documents the datasets used in this analysis.
 
-##3.1 Historical Pollutant and Weather Data
+## Historical Pollutant and Weather Data
+
 **Citation:** Texas Commission on Environmental Quality. (2003-2004). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
 **Date Downloaded:** March 10, 2020 
 **Filename(s):**
@@ -91,8 +78,8 @@ raw_data/nox_200x.csv
 raw_data/oz_200x.csv
 raw_data/pm25x_200x.csv
 raw_data/so2_200x.csv
-*If you have a large number of files you can use a patten (see visit data below)*
-**Unit of observation:** parts per billion, meters/second, degrees compass, decrees Celsius
+raw_data/sitefile.xls
+**Unit of observation:** parts per billion, micrograms per unit, meters per second, degrees compass, decrees Celsius
 **Dates covered:** 01/01/2003-12/31/2004
 
 ### To obtain a copy
@@ -101,23 +88,28 @@ Interested users should visit the Historical Pollutant and Weather Data on the T
 
 ### Variable descriptions
 
-Create a bullet list with the name of each variable in the dataset followed by any information the user would need to understand it.
 
-- **date:** The date of the observation.
-- **hour:** The hour of the observation.
-- **AQCR:** Air Quality Control Region code identifying a group of counties that share geographical or pollutant concentration characteristics based on a common pollutant source.
-- **nitrogen_oxides:** Concentration of nitrogen oxides in parts per billion.
-- **carbon_monoxide:** Concentration of carbon monoxide in parts per billion.
-- **sulfur_dioxide:** Concentration of sulfur dioxide in parts per billion.
-- **PM2.5:** Concentration of particulate matter_{2.5} in micrograms per cubic meter.
-- **TMP1:** Temperature taken hourly, measured in degrees celsius.
-- **WDR1:** Wind direction taken hourly, measured in degrees compass.
-- **WSR1:** Wind speed taken hourly, measured in meters per second. 
+- **date:** Date of observation.  
+- **hour:** Hour of observation.  
+- **AQCR:** Air Quality Control Region code.  
+- **AIRS:** AIRS site identification number.  
+- **LONG:** Longitudinal coordinates of the air quality monitor location.  
+- **LATT:** Latitudinal coordinates of the air quality monitor location.  
+- **TNRCCRNM:** Texas Natural Resource Conservation Commission region name.  
+- **ST_CODE:** Federal Information Processing Standards state code.  
+- **nitrogen_oxides:** Concentration of nitrogen oxides in parts per billion.  
+- **carbon_monoxide:** Concentration of carbon monoxide in parts per billion.  
+- **sulfur_dioxide:** Concentration of sulfur dioxide in parts per billion.  
+- **PM_25:** Concentration of particulate matter_{2.5} in micrograms per cubic meter.  
+- **TMP1:** Temperature taken hourly, measured in degrees Celsius.  
+- **WDR1:** Wind direction taken hourly, measured in degrees compass.  
+- **WSR1:** Wind speed taken hourly, measured in meters per second.   
+
+* Note: These data sets include additional variables that were not relevant to this study and therefore omitted from this list.
 
 ### Data import code and summary
 
-```{r set up download and read function, echo = T}
-
+```{r set up download and read function}
 years = c("2003","2004")
 
 download_and_read_data <- function(filename){
@@ -126,7 +118,9 @@ download_and_read_data <- function(filename){
     
     destfile = file.path("raw-data",str_c(filename, ".zip"))
     
-    download.file(url = str_c("https://www.tceq.texas.gov/assets/public/compliance/monops/air/ozonehist/", filename, ".zip"), destfile = destfile)
+    download.file(url = 
+                    str_c("https://www.tceq.texas.gov/assets/public/compliance/monops/air/ozonehist/", 
+                          filename, ".zip"), destfile = destfile)
     
     unzip(destfile, exdir = "raw-data", junkpaths = T)
   }
@@ -134,7 +128,7 @@ download_and_read_data <- function(filename){
 }
 ```
 
-```{r read in co data, echo = T}
+```{r read in co data}
 co_data <- lapply(str_c("co_",years), download_and_read_data) %>% 
   bind_rows() 
 
@@ -146,14 +140,15 @@ co_hourly <- co_data %>%
   select(airs, ST_CODE, AQCR, date, contains("CO1hr")) %>%
   select(-CO1hrvh, -CO1hrvd, -CO1hrpk, -CO1hrav) %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("CO1"), names_to = "hour", values_to = "carbon_monoxide") %>%
+  pivot_longer(cols = contains("CO1"), names_to = "hour", 
+               values_to = "carbon_monoxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"CO1hr"))) %>%
   mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
   mutate(after = Date >="2004/01/01") 
 
 ```
 
-```{r read in so2 data, echo = T}
+```{r read in so2 data}
 so2_data <- lapply(str_c("so2_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(airs, ST_CODE, AQCR, date, contains("SO21hr")) %>%
@@ -165,14 +160,14 @@ if (run_summary) {
 
 so2_hourly <- so2_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("SO21"), names_to = "hour", values_to = "sulfur_dioxide") %>%
+  pivot_longer(cols = contains("SO21"), names_to = "hour", 
+               values_to = "sulfur_dioxide") %>%
   mutate(hour = as.numeric(str_remove(hour,"SO21hr"))) %>%
   mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
   mutate(after = Date >="2004/01/01")
-
 ```
 
-```{r read in nox data, echo = T}
+```{r read in nox data}
 nox_data <- lapply(str_c("nox_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(airs, ST_CODE, AQCR, date, contains("NOX1hr")) %>%
@@ -184,14 +179,14 @@ if (run_summary) {
 
 nox_hourly <- nox_data %>%
   group_by(airs, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("NOX1"), names_to = "hour", values_to = "nitrogen_oxides") %>%
+  pivot_longer(cols = contains("NOX1"), names_to = "hour", 
+               values_to = "nitrogen_oxides") %>%
   mutate(hour = as.numeric(str_remove(hour,"NOX1hr"))) %>%
   mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
   mutate(after = Date >="2004/01/01")
-
 ```
 
-```{r read in pm25 data, echo = T}
+```{r read in pm25 data}
 pm25_data <- lapply(str_c("pm25x_",years), download_and_read_data) %>% 
   bind_rows() %>%
   select(AIRS, ST_CODE, AQCR, date, contains("PM251hr")) %>%
@@ -203,29 +198,32 @@ if (run_summary) {
 
 pm25_hourly <- pm25_data %>%
   group_by(AIRS, ST_CODE, AQCR, date) %>%
-  pivot_longer(cols = contains("PM251"), names_to = "hour", values_to = "PM_25") %>%
+  pivot_longer(cols = contains("PM251"), names_to = "hour", 
+               values_to = "PM_25") %>%
   mutate(hour = as.numeric(str_remove(hour,"PM251hr"))) %>%
   mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
   mutate(after = Date >="2004/01/01")
 ```
 
-
-``` {r}
+``` {r creating rose breaks for WDR1}
 rose_breaks <- c(0, 360/32, (1/32 + (1:15 / 16)) * 360, 360)
 
-rose_labs <- c("North", "North-Northeast", "Northeast", "East-Northeast",
-  "East", "East-Southeast", "Southeast", "South-Southeast",
-  "South", "South-Southwest", "Southwest", "West-Southwest",
-  "West", "West-Northwest", "Northwest", "North-Northwest",
-  "North")
+rose_labs <- c("North", "North-Northeast", "Northeast", 
+               "East-Northeast","East", "East-Southeast", 
+               "Southeast", "South-Southeast", "South", 
+               "South-Southwest", "Southwest", 
+               "West-Southwest", "West", "West-Northwest", 
+               "Northwest", "North-Northwest", "North")
 ```
 
-
-```{r read in weather data, echo = T}
+```{r read in weather data}
 weather_data <- lapply(str_c("camswx_",years), download_and_read_data) %>% 
   bind_rows() %>%
-  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), contains("TMP1hr"), contains("WDR1hr"), contains("WHR1hr")) %>%
-  select(-contains("hrvh"), -contains("hrvd"), -contains("hrav"), -contains("hrpk")) 
+  select(AIRS, ST_CODE, AQCR, date, contains("WSR1hr"), 
+         contains("TMP1hr"), contains("WDR1hr"), 
+         contains("WHR1hr")) %>%
+  select(-contains("hrvh"), -contains("hrvd"), 
+         -contains("hrav"), -contains("hrpk")) 
 
 if (run_summary) {
   export_summary_table(dfSummary(weather_data))
@@ -240,15 +238,24 @@ weather_hourly <- weather_data %>%
   mutate(hour = as.numeric(hour)) %>% 
   pivot_wider(names_from = "measurement", values_from = "value") %>%
   mutate(Date = as.Date(date, "%m/%d/%Y")) %>%
-  mutate(after = Date >="2004/01/01") %>%
   mutate(airs = AIRS) %>%
-  mutate(WDR = cut(WDR1, breaks = rose_breaks, labels = rose_labs, right = FALSE, include.lowest = TRUE))
-  
-
+  mutate(WDR = cut(WDR1, breaks = rose_breaks, 
+                   labels = rose_labs, right = FALSE, 
+                   include.lowest = TRUE)) %>%
+  mutate(after = Date >="2004/01/01") 
 ```
 
+```{r read-in monitor location data}
+monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>% 
+  mutate(longitude = -LONG, latitude = LATT) %>% 
+  select(AIRS,TNRCCRNM, longitude, latitude) %>% 
+  filter(TNRCCRNM == "Houston") %>% 
+  filter(!is.na(longitude)) %>% 
+  filter(longitude != 0) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+```
 
-##3.2 Metro Rail Station Data
+## Metro Rail Station Data
 
 **Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
 **Date Downloaded:** March 10, 2020
@@ -262,15 +269,13 @@ Interested users should visit the Metro Rail Stations section of the City of Hou
 
 ### Variable descriptions
 
-Create a bullet list with the name of each variable in the dataset followed by any information the user would need to understand it.
-
-- **latutide:** The latitudinal coordinates of the corresponding station. 
-- **longitude:** The longitudinal coordinates of the corresponding station.
-- **Stat_Name:** The name of the metro station.
-- **Stat_Loc:** The street address of the metro station.
-- **STATUS:** The operative status of the metro station, either existing or non-existing.
-- **service_year:** The year the metro station began operating.
-
+- **latitude:** Latitudinal coordinates of the corresponding station.  
+- **longitude:** Longitudinal coordinates of the corresponding station.  
+- **Stat_Name:** Name of the METRO station.  
+- **Stat_Loc:** The street address of the METRO station.  
+- **STATUS:** Operative status of the METRO station, either existing or non-existing.  
+- **service_year:** The year the METRO station began operating.  
+- **OBJECTID:** Identification number corresponding to individual METRO stations.  
 
 ### Data import code and summary
 
@@ -289,138 +294,128 @@ colnames(metro_data) [2] <- "longitude"
 
 colnames(metro_data) [9] <- "service_year"
 
-# Note: most stations appear to be in the data twice, once with label = 1, once with label = 0
-# The two rows have slightly different lat/long characteristics. It might be worth checking
-#the data to see what this might mean and which one you really want.
-
 ```
-
-```{r read-in monitor location data}
-monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>% 
-  mutate(longitude = -LONG, latitude = LATT) %>% 
-  select(AIRS,TNRCCRNM, longitude, latitude) %>% 
-  filter(TNRCCRNM == "Houston") %>% 
-  filter(!is.na(longitude)) %>% 
-  filter(longitude != 0) %>% 
-  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-
-```
-
-
-*While it will make your resulting file long, you should not modify the chunk options to suppress printing of code and output. I would likely not include this in the documentation for an actual paper I was submitting, but including them here will let me read your code and the output message from R and may help identify data import concerns early in the process. Since these files will exist only electronically, their length is less of a concern. If you like to print out files to proofread and want me to help you shorten the printed versions, let me know. We can temporarily modify the chunk options for printing and restore them before you submit the assignment.*
 
 
 # Data Processing and Combination
-*This section should include a discussion of the processing and merging steps needed to create your basic data. The code to implement these steps should be included in chunks in this section. Once the final merged data has been created, you should use the dfSummary function again to summarize the data you will be using. You should also save a file containing all the objects you will use in your final analysis to the processed_data folder.*
+
+During the read-in process for all pollutant and weather data sets, the $after$ dummy variable was created by setting it equal to "TRUE" if the date of observation was on or after 01/01/2004. Additionally, compass rose breaks were created prior to reading in the weather data in order to mutate the original numeric wind direction variable (WDR1) into a factor variable (WDR) to account for the circular nature of wind direction measurement. During the read-in process for the metro data, a second data set (metro_data_geometry) was created containing only the coordinates of METRO stations and their OBJECTID variable. These code chunks are not repeated in this section. Compass rose break creation can be found in the code chunk directly before weather data read-in, $after$ variable creation can be found in the last line of all read-in code for pollutant and weather data sets, and metro_data_geometry data set creation can be found within the metro data read-in code.
+
+All monitor locations from the monitor_locations data set and all METRO station locations from the metro_data_geometry data set were combined into a matrix in which distances could be calculated between monitors and METRO stations. The matrix was then transformed into a list of distances, which were converted from meters to kilometers. From this list, the data frame distance_measure was created containing minimum distances (min_dist) between air monitors and METRO stations,. The $exposed$ dummy variable was created on this data frame by equaling "TRUE" if the min_dist variable was less than or equal to 10.5 kilometers. All final pollutant regression data was created by merging the weather_hourly, distance_measure, and the corresponding hourly pollutant data sets. The log pollutant variables were created by taking the log of the pollutant variable plus 1 in order to avoid taking the log of null or negative pollutant values. 
 
 ```{r compute distances between monitors}
-distances <- st_distance(monitor_locations, metro_data_geometry) #takes all monitor locations and all metro station locations and creates a matrix
+distances <- st_distance(monitor_locations, metro_data_geometry) 
 colnames(distances) <- metro_data_geometry$OBJECTID 
 distance_data <- as_tibble(distances)
 distance_data$airs <- monitor_locations$AIRS 
 
-distance_list <- distance_data %>% #instead of it being a matrix, we made it into a long list
+distance_list <- distance_data %>% 
   pivot_longer(-airs, names_to = "metro_object", values_to = "distance") %>% 
   mutate(distance = as.numeric(distance/1000)) %>%
   mutate(airs = as.numeric(airs))
 
-distance_measure <- distance_list %>% #now use this data frame
+distance_measure <- distance_list %>% 
   group_by(airs) %>%
   summarize(min_dist = min(distance)) %>%
   mutate(airs = as.numeric(airs),
-         exposed = min_dist <= 10.5) #can add unexposed control variable if I want
+         exposed = min_dist <= 10.5) 
 ```
-
-# Analysis Variables
-
-This section should include a description of all the variables that are used in your final analysis. At the end of the section, you should save all of these variables in the processed_data folder of your repository.
-
-# Discussion of Data
-
-*This section should include a discussion of any data patterns you notice based on the summaries created in the code above.*
 
 ```{r making co_regression_data}
 co_regression_data <- merge(distance_measure, merge(co_hourly, weather_hourly)) %>%
   mutate(log_co = log(1 + carbon_monoxide))
 
-# doesn't work w exposed = 9km
-```
-
-```{r running co regression}
-
-co_regression_results <- lm(log_co ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
-                         data = co_regression_data)
-
-stargazer(co_regression_results, type = "latex",
-          omit = c("hour", "WDR"),
-          report = 'vctp',
-          intercept.bottom = F,
-          header = F,
-          digits = 5)
 ```
 
 ```{r making nox_regression_data}
 nox_regression_data <- merge(distance_measure, merge(nox_hourly, weather_hourly)) %>%
   mutate(log_nox = log(1 + nitrogen_oxides))
-
-# work w exposed = 10km
-```
-
-```{r running nox regression}
-
-nox_regression_results <- lm(log_nox ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
-                         data = nox_regression_data)
-
-stargazer(nox_regression_results, type = "latex",
-          report = 'vctp',
-          omit = c("hour", "WDR"),
-          intercept.bottom = F,
-          header = F,
-          digits = 5)
 ```
 
 ```{r making pm25_regression_data}
 pm25_regression_data <- merge(distance_measure, merge(pm25_hourly, weather_hourly)) %>%
   mutate(log_pm25 = log(1 + PM_25))
-# doesn't work w exposed = 9km
-```
-
-```{r running PM2.5 regression}
-
-pm25_regression_results <- lm(log_pm25 ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
-                         data = pm25_regression_data)
-
-stargazer(pm25_regression_results, type = "latex",
-          report = 'vctp',
-          omit = c("hour", "WDR"),
-          intercept.bottom = F,
-          header = F,
-          digits = 5)
 ```
 
 ```{r making so2_regression_data}
 so2_regression_data <- merge(distance_measure, merge(so2_hourly, weather_hourly)) %>%
   mutate(log_so2 = log(1 + sulfur_dioxide))
-
-# works w exposed = 6km
 ```
 
-```{r running so2 regression}
+```{r creating nox summary table}
 
-so2_regression_results <- lm(log_so2 ~ exposed + after + after*exposed + as.factor(hour) + TMP1 + WSR1 + WDR, 
-                         data = so2_regression_data) 
+nox_summary_data <- nox_regression_data %>%
+   select(nitrogen_oxides, exposed, after, WSR1, TMP1, WDR)
 
-stargazer(so2_regression_results, type = "latex",
-          report = 'vctp',
-          omit = c("hour", "WDR"),
-          intercept.bottom = F,
+stargazer(nox_summary_data, type = "latex",
+          label = "NOXSummaryStats",
+          title = "$NO_{x}$ Summary Statistics",
           header = F,
-          digits = 5)
+          digits = 2)
+
 ```
 
+```{r creating co summary table}
 
+co_summary_data <- co_regression_data %>%
+   select(carbon_monoxide, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(co_summary_data, type = "latex",
+          label = "COSummaryStats",
+          title = "$CO$ Summary Statistics",
+          header = F,
+          digits = 2)
+
+```
+
+```{r creating so2 summary table}
+
+so2_summary_data <- so2_regression_data %>%
+   select(sulfur_dioxide, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(so2_summary_data, type = "latex",
+          label = "SO2SummaryStats",
+          title = "$SO_{2}$ Summary Statistics",
+          header = F,
+          digits = 2)
+
+```
+
+```{r creating PM2.5 summary table}
+
+pm25_summary_data <- pm25_regression_data %>%
+   select(PM_25, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(pm25_summary_data, type = "latex",
+          label = "PM25SummaryStats",
+          title = "$PM_{2.5}$ Summary Statistics",
+          header = F,
+          digits = 2)
+
+```
+
+# Analysis Variables
+
+- **exposed:** Air quality monitors located within 10.5 kilometers of a new subway station         
+- **after:** Dates on or following the introduction of the METRO Rail between 01/01/2004 and 12/31/2004 
+- **carbon_monoxide:** Hourly concentration of carbon monoxide in parts per billion                         
+- **log_co:** Log of $carbon\_monoxide$                                                           
+- **nitrogen_oxides:** Hourly concentration of nitrogen oxides in parts per billion                 
+- **log_nox:** Log of $nitrogen\_oxides$                                                      
+- **sulfur_dioxide:** Hourly concentration of sulfur dioxide in parts per billion                    
+- **log_so2:** Log of $sulfur\_dioxide$                                                             
+- **PM_25:** Hourly concentration of $PM_{2.5}$ in micrograms per cubic meter                   
+- **log_pm25:** Log of $PM\_25$                                                                        
+- **TMP1:** Temperature measured in degrees Celsius                                              
+- **WDR:** Wind direction measured in compass directions                                      
+- **WSR1:** Wind speed measured in meters per second
 
 ```{r saving to processed data}
 save("co_hourly", "so2_hourly", "weather_hourly", "nox_hourly", "pm25_hourly", "nox_regression_data", "co_regression_data", "pm25_regression_data", "so2_regression_data",  file = "processed-data/analysis_data.RData")
 ```
+
+# Discussion of Data
+
+The hourly means of all pollutants appear to stay within a relatively low range. The maximum values of $nitrogen\_oxides$ and $sulfur\_dioxide$ indicate that the data is skewed towards higher concentrations by the outlier maximum values. The mean values of $exposed$ show that 16% of air quality stations that measured $NO_x$ were within 10.5 km, as were 33% of monitors that measured $CO$, 60% of monitors that measured $SO_2$, and 12% of monitors that measured $PM_{2.5}$. Because the data covers a full year, the wide range between minimum and maximum values of $TMP1$ can be explained by seasonal variation. $WDR$ and $hour$ were omitted from this table because they are factor variables, but are included in the final regression.
+
 
