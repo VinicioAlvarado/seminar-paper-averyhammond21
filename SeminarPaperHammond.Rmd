@@ -1,0 +1,224 @@
+---
+title: "The Impact of Public Transit Introduction on Individual Air Pollutants in Houston, Texas"
+author: "Avery Hammond"
+abstract: \singlespacing As urban areas continue to grow, many cities have turned to public transit expansion in an attempt to reduce traffic congestion and vehicle emissions. Given the considerable health risks of prolonged pollution exposure in highly trafficked areas, quantifiable reductions in pollutant concentrations are extremely relevant to urban residents. This paper explores the medium-term impact of the introduction of Houston's METRO Rail public transit system on nearby concentrations of several distinct air pollutants. This study uses a difference-in-difference model to analyze changes in individual pollutant levels measured by air quality monitors located within 10.5 kilometers of new METRO stations in the year following METRO Rail introduction. Results show that areas within 10.5 kilometers of new METRO stations experienced a 36.1% decrease in carbon monoxide concentrations, a 8.6% decrease in nitrogen oxides, and a 7.2% increase in sulfur dioxide during the first year of operation. There is no significant evidence that the introduction of the METRO Rail impacted concentrations of particulate matter. 
+thanks: Special thanks to Professor Susan Sayre for advising and coding assistance, Shengqi Zhong for peer review, and comments from Abby Hanna, Kate Ginder, Katya Garcia-Israel, and Victoria Tse in ECO 324 at Smith College Spring 2020.
+header-includes:
+   - \usepackage{booktabs}
+   - \usepackage{setspace}
+   - \doublespacing
+   - \usepackage[labelfont=bf]{caption}
+output:
+  pdf_document:
+    number_sections: yes
+---
+
+```{r setup, echo = F, message = F}
+knitr::opts_chunk$set(results = 'asis', cache = F, echo = F)
+library(tidyverse)
+library(summarytools)
+library(stargazer)
+```
+
+# Introduction
+
+Activity in the transportation sector is regarded around the world as one of the major causes of air pollution, particularly in urban areas. As cities around the world continue to expand, high volumes of vehicles using limited road space results in severe traffic congestion, further adding to air pollution in these spaces. Many studies indicate that regular exposure to the pollution in highly trafficked areas increases risk of cancer, asthma, cardiovascular disease, and premature death, among others (US EPA, 2016b). In one attempt to remedy this, researchers turn to public transit in urban areas as a method of reducing traffic congestion and improving air quality as a result. Similarly to many of the studies cited below, this paper assesses the medium-term impact of public transit expansion on local air quality by spatially analyzing changes in air pollutants in the year following expansion. This study, however, is somewhat unique in its subject of Houston, Texas. While the wide majority of cities analyzed by other researchers were expanding or replacing existing public transit infrastructure, there was no public rail system in Houston until the introduction of the METRO Rail on January 1, 2004. The recentness of the introduction also ensured the availability of pollutant and weather data during the first year of the METRO Rail's operation, making Houston an ideal subject for study.
+
+In an attempt to determine more precisely how the composition of air quality changes as a result of public transit introduction, this study analyzes the medium-term impact of the METRO Rail's introduction on nearby concentrations of four major vehicle pollutants: nitrogen oxides, carbon monoxide, sulfur dioxide, and $PM_{2.5}$. This was achieved by using spatial analysis to create the dummy variable $exposed$, equal to one for air quality monitors within 10.5 kilometers of a new METRO station, and by using dates of observation to create the dummy variable $after$, equal to one for all observations during the first year of the METRO Rail's operation. The results of the difference-in-differencce model used in this study indicate that in the first year of the METRO Rail's operation, areas within 10.5 kilometers of a new METRO station experienced a 36.1% decrease in carbon monoxide, 8.6% decrease in nitrogen oxides, and 7.2% increase in sulfur dioxide concentrations with statistical significance. $PM_{2.5}$ was not found to have a statistically significant change under these circumstances. The significant changes in nitrogen oxides and carbon monoxide are particularly strong indicators of a transition from private to public transport, since the major source of both pollutants comes from vehicle emissions (US EPA, 2016c, 2016d). 
+
+The remainder of the paper is divided into the following sections. Section 2 discusses existing research on air quality and public transportation. Section 3 documents the data, methods, and model used in this study, as well as its conceptual motivation. Section 4 presents the results and offers a discussion of their meaning. Section 5 concludes.
+
+# Literature Review
+
+This paper expands on much of the existing literature regarding the impact of public transit expansion on local air quality in urban settings. Many recent studies have found a correlation between subway expansion and air quality improvement (eg. Titos et al., 2015, Bel et al., 2018, Zheng et al., 2019, Li et al., 2019). Some papers have analyzed the impact of public buses in particular, with Titos et al. (2015) finding black carbon and $PM_{10}$ reductions of 37% and 33% respectively after the implementation of a new public bus system in Granada, Spain. Bel et al. (2018) also finds a 7.17% reduction in the short-term of air pollution concentrations in the areas surrounding Mexico City's new Metrobus line. This paper varies from these works both in the type of public transit and the length of time analyzed. While users of public transit often utilize both buses and rail systems in their commutes, this study focuses specifically on light-rail systems, which allow for higher occupancy than individual buses. This study further extends the window of analysis to one year before and after the introduction of the METRO Rail to better estimate the medium-term effects of light-rail expansion in Houston. Many papers (Zheng et al, 2019, etc.) theorize that the improvement in air quality results from the transition from private to public transit, and one recent study has found that subway proximity in Beijing reduces a household's probability of owning a vehicle and consuming fuel (Zhang et al., 2017). This paper attempts to determine the presence of that transition from private to public transport by examining how specific individual vehicle pollutants are impacted by public transit introduction in order to better estimate the cause of the change.
+
+Much of the method used in this study is based on the works of Zheng et al. (2019), and Li et al. (2019), both of whom use difference-in-difference models. Zheng et al. (2019) examines the impact of a new subway line in Changsha, China on individual pollutant concentrations in areas surrounding the new subway stations. Their difference-in-difference model also includes one year before and after the subway expansion, which this study mirrors both to measure the medium-term effects on air pollution in the affected areas and to avoid seasonal variation in air quality that may impact results. Zheng et al. (2019) find an 18.1% greater reduction in carbon monoxide in areas close to the new subway line compared to more remote areas, but find no significant impact on $PM_{2.5}$ or $O_3$. Li et al. (2019) also use a difference-in-difference model to estimate the impact of an increase in subway density on local air quality in Beijing, China. The authors use both the API (Air Pollution Index) and AQI (Air Quality Index) in their analysis and find that a one standard deviation increase in subway density results in a 1.5% decrease of air pollution concentration in the long-term. The authors do not include individual pollutants in their regression, but rather overall air quality indicators. This paper applies a difference-in-difference model similar to both Li et al. (2019) and Zheng et al. (2019), weighted for distance between air quality monitors and new subway station locations. 
+
+# Data and Methods
+
+```{r loading data}
+load("processed-data/analysis_data.RData")
+```
+
+
+## A Conceptual Model of Vehicle Pollutant Concentrations
+
+As evidenced in the literature review, the introduction of public transit, particularly buses and subways, has been found to reduce concentrations of certain air pollutants in major cities across the world. Very few of these studies, however, have been conducted within the U.S. Some studies (eg. Titos et al., 2015, Zheng et al., 2019) attribute the improvement in air quality to decreased traffic congestion as individuals transition from private to public transport, which may reduce single-occupancy-vehicle emissions. To determine the presence of such a transition, this study looks specifically at four major vehicular pollutants: $NO_{x}$, $CO$, $SO_{2}$, and $PM_{2.5}$. The analysis of these distinct pollutants, rather than overall air quality measures, is necessary in order to examine the relationship between vehicle-induced air pollution and nearby public transport introduction, as general air quality indicators may be influenced by non-vehicular emissions. By analyzing pollutants individually, I attempt to examine precisely how air quality changes with local introduction of public transit in Houston, as some pollutants may change significantly and others not at all. Since each of these pollutants pose different threats to public health and the environment, the distinction between them is highly relevant. With the following data and methods, I aim to determine whether the introduction of the Houston METRO Rail resulted in nearby vehicle pollutant concentration reductions in the first year of the system's operation. 
+
+It is important to note that the Houston METRO Rail is classified as a light-rail system that operates above ground and is distinct from a heavy-rail system, such as an underground subway. According to the US Department of Transportation, heavy rail systems produce 76% less greenhouse gas emissions per mile than the average single occupancy vehicle, while light rail systems produce 62% less (Federal Transit Administration, 2015). This is intended to emphasize that the results of this paper only pertain to the light-rail system of Houston, and cannot be generalized to other forms of public transport in other cities. These results may however provide a general notion of how vehicle pollutants can be impacted by light-rail transit expansion in cities similar to Houston.
+
+
+## Data
+
+The time period analyzed in this study spans from 2003 to 2004 in Houston, Texas metropolitan area. Time-series data covering all hourly weather measurements and pollutant concentrations and cross-sectional data containing the locations of air quality monitors are retrieved from the Texas Commission on Environmental Quality (Texas Commission on Environmental Quality, 2003). This data was used to create the dummy variable "after," which is equal to 1 for all hourly pollutant concentrations and weather measurements after the introduction of the METRO Rail system on January 1, 2004. I also altered the original wind direction variable to correspond to compass directions instead of compass degrees to account for the circular nature of directional measurement (e.g. 1° and 359° are now both categorized as North).
+
+This study also uses cross-sectional data on the locations of Houston Metro stations to analyze the Metro's impact on air quality in these areas, retrieved from the City of Houston GIS database (City of Houston, 2019). I use the coordinates of the new METRO Rail stations and the site data of air quality monitors to compute the minimum distances between each METRO station and the city's air quality monitors. From this, the "exposed" dummy variable was created for air quality monitors within 10.5 kilometers of a new METRO station. The distance of 10.5 kilometers was chosen in order to include air quality monitors that measured $PM_{2.5}$ and $CO$, none of which were located closer than 10.4 kilometers away from a new METRO station. It is also noteworthy that not all air quality monitors measure every pollutant used in this study, which accounts for the variation in N-values in the summary tables. Table \ref{variabledefinitions} provides definitions for the variables used in this analysis.
+
+\begin{table}
+\centering
+\caption{Variable Definitions}
+\label{variabledefinitions}
+\begin{tabular}{ll}
+\hline
+\hline
+Variable name      & Description                                                                                           \\
+\hline      
+exposed            & Dummy variable for air quality monitors located within 10.5 kilometers of a new subway station        \\
+after              & Dummy variable for observations following the introduction of the METRO Rail on 01/01/2004            \\
+carbon\_monoxide   & Hourly concentration of carbon monoxide in parts per billion                                          \\
+log\_co            & Log of carbon\_monoxide                                                                               \\
+nitrogen\_oxides   & Hourly concentration of nitrogen oxides in parts per billion                                          \\ 
+log\_nox           & Log of nitrogen\_oxides                                                                               \\
+sulfur\_dioxide    & Hourly concentration of sulfur dioxide in parts per billion                                           \\
+log\_so2           & Log of sulfur\_dioxide                                                                                \\
+PM\_25             & Hourly concentration of $PM_{2.5}$ in micrograms per cubic meter                                      \\ 
+log\_pm25          & Log of PM\_25                                                                                         \\
+TMP1               & Temperature measured in degrees Celsius                                                               \\
+WDR                & Wind direction measured in compass directions                                                         \\
+WSR1               & Wind speed measured in meters per second                                                              \\
+\hline
+\end{tabular}
+\end{table}
+ 
+```{r creating nox summary table}
+nox_summary_data <- nox_regression_data %>%
+   select(nitrogen_oxides, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(nox_summary_data, type = "latex",
+          label = "NOXSummaryStats",
+          title = "$NO_{x}$ Summary Statistics",
+          header = F,
+          digits = 2)
+```
+```{r creating co summary table}
+co_summary_data <- co_regression_data %>%
+   select(carbon_monoxide, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(co_summary_data, type = "latex",
+          label = "COSummaryStats",
+          title = "$CO$ Summary Statistics",
+          header = F,
+          digits = 2)
+```
+```{r creating so2 summary table}
+
+so2_summary_data <- so2_regression_data %>%
+   select(sulfur_dioxide, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(so2_summary_data, type = "latex",
+          label = "SO2SummaryStats",
+          title = "$SO_{2}$ Summary Statistics",
+          header = F,
+          digits = 2)
+```
+```{r creating PM2.5 summary table}
+pm25_summary_data <- pm25_regression_data %>%
+   select(PM_25, exposed, after, WSR1, TMP1, WDR)
+
+stargazer(pm25_summary_data, type = "latex",
+          label = "PM25SummaryStats",
+          title = "$PM_{2.5}$ Summary Statistics",
+          header = F,
+          digits = 2)
+```
+
+Tables 2, 3, 4, and 5 display the summary statistics for the explanatory variables and each independent pollutant variable. Note that the units of nitrogen oxides, sulfur dioxide, and carbon monoxide in this study are all measured in parts per billion (ppb). 1-hour National Ambient Air Quality Standards (NAAQS) for carbon monoxide are set in parts per million (ppm), and in ppb for both nitrogen dioxide and sulfur dioxide (US EPA, 2014). $PM_{2.5}$ does not have a 1-hour exposure standard set by the EPA and is measured in micrograms per cubic meter both in this study and in regulatory standards. The average 1-hour concentration of $carbon\_monoxide$ as seen on this table is equivalent to 0.47399 ppm, which is well within the National Ambient Air Quality Standards of 9ppm (US EPA, 2014). The hourly means of all pollutants appear to stay within a relatively low range from 2003 to 2004 and all are within National Ambient Air Quality Standards set by the EPA (US EPA, 2014). 
+
+The range in hourly concentrations of $nitrogen\_oxides$ is especially notable, spanning from 0 to 809 ppb. Since nitrogen oxides are a group of gases, it is difficult to tell which specific gas contributed to this maximum. It is notable however that the EPA has set the 1-hour National Ambient Air Quality Standard of nitrogen dioxide, the most common nitrogen oxide, to 100 ppb (US EPA, 2014). Although this maximum value is likely an outlier when compared to the 75th percentile and the mean, such concentrations of nitrogen dioxide would be toxic to humans even for a short period (US EPA, 2016c). The maximum value of hourly sulfur dioxide concentrations also exceed the EPA's air quality standards of 75ppb, but the mean values and percentiles would indicate that this measurement is also an outlier. From these maximums, however, it is evident that the data is skewed towards higher concentration values. 
+
+The mean values of $exposed$ show that 16% of air quality stations that measured $NO_x$ were within 10.5 km, as were 33% of monitors that measured $CO$, 60% of monitors that measured $SO_2$, and 12% of monitors that measured $PM_{2.5}$.
+
+## Model Specification
+
+The dependent variable in this regression is the log of the pollutant ($NO_x$, $CO$, $SO_2$, or $PM_{2.5}$). This study uses a linear difference-in-difference model, specified as:
+
+$log\_pollutant_{itp} = \beta_{0} + \beta_{1}after_{t} + \beta_{2}exposed_{i} + \beta_{3}after_{i}*exposed_{t} + \beta_{4}hour_{t} + \beta_{5}TMP1_{it} +  \beta_{6}WSR1_{it} + \beta_{7}WDR_{it} + \epsilon_{it}$
+
+where $p$ indexes the individual pollutant, $i$ indexes air quality monitors, and $t$ indexes hour and date. $\beta_{i}$ represents the air quality monitor fixed effect. The log of the pollutants are used to help account for skewed data, the presence of which is evident from the maximums in the summary statistics tables. The variable $hour$ is included as a fixed effect to control for time of day, as pollutant concentrations are expected to vary throughout a 24-hour period. The variables $TMP1$, $WSR1$, and $WDR$ are included as fixed effects because temperature, wind speed, and wind direction are known to have significant impacts on air quality and pollution levels. These variables also help control for weather variation throughout the year that may cause exogenous fluctuations in pollutant concentrations. The dummy variable $exposed$ is equal to one if the air quality monitor $i$ is within 10.5km of a new METRO station; $after$ is equal to one if the date is on or after the introduction of the METRO Rail on 01/01/2004. The coefficient of $after*exposed$ will be most relevant in determining the effect of light-rail system expansion on pollutant concentrations, as it will apply only to measurements taken by air quality monitors within a 10 kilometer radius of a new METRO station during the station's first year of operation. Its coefficient will therefore inform the magnitude to which the concentrations of each pollutant changed over this time period as a result of exposure to the new METRO Rail system.
+
+
+# Results & Discussion
+
+```{r running nox regression}
+
+nox_regression_results <- lm(log_nox ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
+                         data = nox_regression_data)
+
+```
+
+```{r running co regression}
+
+co_regression_results <- lm(log_co ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
+                         data = co_regression_data)
+
+```
+
+```{r running PM2.5 regression}
+
+pm25_regression_results <- lm(log_pm25 ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
+                         data = pm25_regression_data)
+
+```
+
+```{r running so2 regression}
+
+so2_regression_results <- lm(log_so2 ~ after + exposed + exposed*after + as.factor(hour) + TMP1 + WSR1 + WDR, 
+                         data = so2_regression_data) 
+
+```
+
+```{r creating a combined table of results}
+stargazer(nox_regression_results, co_regression_results, pm25_regression_results, so2_regression_results,
+          type = "latex",
+          title = "Regression Results",
+          label = "regressionresults",
+          header = F,
+          digits = 2,
+          omit = c("hour", "WDR"),
+          column.sep.width = "0pt",
+          font.size = "scriptsize",
+          single.row = FALSE,
+          notes = "Hour fixed effects and wind direction fixed effects also included but coefficients are omitted here.",
+          notes.align = "l")
+```
+
+## Results
+
+The results of all pollutant regressions can be found on Table \ref{regressionresults}. With the exception of $PM_{2.5}$, all coefficients of $after*exposed$ are statistically significant. These coefficients suggest that in the year following Houston METRO Rail expansion, air quality monitors inside a 10.5 kilometer radius of new METRO stations experienced subsequent concentration reductions in nitrogen oxides and carbon monoxide by 8.61% and 36.14% respectively, while sulfur dioxide concentrations experienced a 7.22% increase. As I hypothesized in the Data and Methods section, individual pollutants experienced varying levels of reduction in the year following the introduction of the METRO Rail, with the difference in $PM_{2.5}$ being insignificant entirely. 
+
+## Discussion
+
+The pollutant that experienced by far the largest reduction in the first year of the METRO Rail's operation is carbon monoxide. These results resemble those of Zheng et al. (2019) and Bel et al. (2018), who find 18.1% and 7.2% reductions, respectively, of carbon monoxide in areas surrounding new or expanded public transit. In addition to transport fuel emissions acting as their greatest cause, both carbon monoxide and nitrogen oxides are primary vehicle pollutants, meaning they are released into the atmosphere directly from the source rather than forming as secondary pollutants from other particles (US EPA, 2016c, 2016d). Because they are emitted directly from the source and both are primarily caused by vehicle emissions, nitrogen oxides and carbon monoxide are the most suitable indicators of a transition from private to public transport in this study. As reductions in both pollutants correspond with statistical significance to the introduction of the METRO Rail, it is possible that the decreases are caused by individuals favoring the METRO Rail over private vehicles and therefore emitting less carbon monoxide and nitrogen oxides. Statistically significant reductions in carbon monoxide and nitrogen oxides found in this paper support the findings of Zheng et al. (2019) and many other studies, which theorize that the improvements in air quality as a result of public transport expansion may be caused by the substitution of private vehicles for public, therefore causing fewer emissions.
+
+As a secondary pollutant, the insignificance of $PM_{2.5}$'s $after*exposed$ coefficient may be due its dependence on sulfur dioxide and nitrogen oxides to form. Because concentrations of nitrogen oxides decreased while concentrations of sulfur dioxide increased, there may have been conflicting factors in the formation of $PM_{2.5}$, resulting in an insignificant coefficient. Although sulfur dioxide is a major vehicle pollutant, the primary contributors of atmospheric $SO_2$ are industrial processes, which may explain why sulfur dioxide concentrations in the area increased during the analyzed time period (US EPA, 2016a). The low $R^2$ value suggests that the explanatory variables included in the regression only account for about 8% of the variation in sulfur dioxide, which may also indicate that exogenous industrial activity played a role in $SO_2$ concentrations. Low $R^2$ values overall suggest that much of the variation in the pollutant variables is not accounted for by the independent variables used in this regression. Other potentially influential explanatory variables include precipitation and humidity, the data for which was unavailable at the time of this study. The overall results of this regression indicate that the introduction of public transit causes lower nitrogen oxides and carbon monoxide concentrations in at least one U.S. city in the medium-term, and that the findings of similar research in other countries may be applicable to parts of the United States. 
+
+
+# Conclusion
+
+This study adds to the extensive field of literature that analyzes the relationship between public transit and air pollution to better understand the determinants of air quality in urban settings. The results of this paper indicate that after exposure to local public transport introduction in Houston, concentrations of carbon monoxide decreased by 36.1%, nitrogen oxides decreased by 8.6%, sulfur dioxide increased by 7.2%, and $PM_{2.5}$ experienced no significant change within the first year of the METRO Rail's operation. Because atmospheric sulfur dioxide primarily comes from industrial processes, such a significant increase may caused by industrial activity in the surrounding area rather than as a result of public transit introduction. Additionally, the lack of significance in $PM_{2.5}$ may be attributed to the role of nitrogen oxides and sulfur dioxide in its formation. Because nitrogen oxides and sulfur dioxide experienced changes of similar magnitude in opposite directions, there may have been conflicting factors in the formation of $PM_{2.5}$, resulting in an insignificant result. These conflicting or exogenous factors in sulfur dioxide and $PM_{2.5}$ concentrations, in addition to $NO_x$ and $CO$'s major sources coming from vehicle emissions, makes nitrogen oxides and carbon monoxide the strongest indicators of a transition from private to public transport out of the pollutants in this study. The results of the DID model used in this paper support many other works that find a similar reduction in carbon monoxide concentrations as a result of proximity to new public transport, in addition to providing further evidence on the magnitude and direction of changes in individual pollutant concentrations after exposure to nearby public transit introduction. Potential steps for future research on this topic include the addition of precipitation and humidity variables, the exploration of conflicting causes in different pollutant sources, and the examination the distinction between public transit expansion and public transit introduction.
+
+
+# References
+
+Bel, G., & Holst, M. (2018). Evaluation of the impact of Bus Rapid Transit on air pollution in Mexico City. Transport Policy, 63, 209–220. https://doi.org/10.1016/j.tranpol.2018.01.001
+
+Li, S., Liu, Y., Purevjav, A.-O., & Yang, L. (2019). Does subway expansion improve air quality? Journal of Environmental Economics and Management, 96, 213–235. https://doi.org/10.1016/j.jeem.2019.05.005
+
+Titos, G., Lyamani, H., Drinovec, L., Olmo, F. J., Močnik, G., & Alados-Arboledas, L. (2015). Evaluation of the impact of transportation changes on air quality. Atmospheric Environment, 114, 19–31. https://doi.org/10.1016/j.atmosenv.2015.05.027
+
+US DOT. (2015, December 14). Transit’s Role in Environmental Sustainability | FTA. Federal Transit Administration. https://www.transit.dot.gov/regulations-and-guidance/environmental-programs/transit-environmental-sustainability/transit-role
+
+US EPA, O. (2014, April 10). NAAQS Table [Policies and Guidance]. US EPA. https://www.epa.gov/criteria-air-pollutants/naaqs-table
+
+US EPA, O. (2016a, June 2). Sulfur Dioxide Basics [Overviews and Factsheets]. US EPA. https://www.epa.gov/so2-pollution/sulfur-dioxide-basics
+
+US EPA, O. (2016b, June 8). How Mobile Source Pollution Affects Your Health [Overviews and Factsheets]. US EPA. https://www.epa.gov/mobile-source-pollution/how-mobile-source-pollution-affects-your-health
+
+US EPA, O. (2016c, July 6). Basic Information about NO2 [Overviews and Factsheets]. US EPA. https://www.epa.gov/no2-pollution/basic-information-about-no2
+
+US EPA, O. (2016d, July 13). Basic Information about Carbon Monoxide (CO) Outdoor Air Pollution [Overviews and Factsheets]. US EPA. https://www.epa.gov/co-pollution/basic-information-about-carbon-monoxide-co-outdoor-air-pollution
+
+Zhang, Y., Zheng, S., Sun, C., & Wang, R. (2017). Does subway proximity discourage automobility? Evidence from Beijing. Transportation Research Part D: Transport and Environment, 52, 506–517. https://doi.org/10.1016/j.trd.2016.11.009
+
+Zheng, S., Zhang, X., Sun, W., & Wang, J. (2019). The effect of a new subway line on local air quality: A case study in Changsha. Transportation Research Part D: Transport and Environment, 68, 26–38. https://doi.org/10.1016/j.trd.2017.10.004
+
