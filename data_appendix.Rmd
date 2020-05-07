@@ -50,27 +50,14 @@ This Data Appendix catalogs the data used in "The Impact of Public Transit Intro
 
 The datasets used directly by the final analysis are saved in `processed-data/` at the end of this file.
 
-
-# Instructions for Use
-
-
-While creating your data appendix, refer regularly to the assignment descriptions posted on Moodle.
-
-A few tips:
-
-- When creating a list like this one, be sure to put an empty line above the list. If you don't do this, your entries won't be formatted a list.
-- Make sure you have empty lines above and below section and subsection headings.
-- When creating numbered lists, you can number all items in your list with 1. Rmarkdown will number them sequentially when it creates your final document.
-
 # Raw data
-
-*Each dataset you use will have its own documentation section. The next subsection in this document (Dataset description) is a template. You can copy this section and paste it into your document each time you need to add a section for a new dataset. Note that each line in the Dataset description section __must__ end with two spaces.* 
-This section documents the datasets used in this analysis.
 
 ## Historical Pollutant and Weather Data
 
 **Citation:** Texas Commission on Environmental Quality. (2003-2004). "Historical Pollutant and Weather Data." Retrieved from https://www.tceq.texas.gov/airquality/monops/historical_data.html#red 
+
 **Date Downloaded:** March 10, 2020 
+
 **Filename(s):**
 raw_data/camswx_200x.csv
 raw_data/co_200x.csv
@@ -79,7 +66,9 @@ raw_data/oz_200x.csv
 raw_data/pm25x_200x.csv
 raw_data/so2_200x.csv
 raw_data/sitefile.xls
+
 **Unit of observation:** parts per billion, micrograms per unit, meters per second, degrees compass, decrees Celsius
+
 **Dates covered:** 01/01/2003-12/31/2004
 
 ### To obtain a copy
@@ -87,7 +76,6 @@ raw_data/sitefile.xls
 Interested users should visit the Historical Pollutant and Weather Data on the Texas Commission on Environmental Quality website at https://www.tceq.texas.gov/airquality/monops/historical_data.html#red. To download data from 2003 and 2004, users should click on the corresponding years for each column, which will download the data setfor each column as a CSV file.
 
 ### Variable descriptions
-
 
 - **date:** Date of observation.  
 - **hour:** Hour of observation.  
@@ -258,9 +246,13 @@ monitor_locations <- readxl::read_xls("raw-data/sitefile.xls") %>%
 ## Metro Rail Station Data
 
 **Citation:** City of Houston. (2019). "Metro Rail Station (current)." Retrieved from https://cohgis-mycity.opendata.arcgis.com/datasets/coh-metro-rail-station-current-1?geometry=-95.616%2C29.649%2C-95.181%2C29.858
+
 **Date Downloaded:** March 10, 2020
+
 **Filename(s):** raw_data/COH_METRO_RAIL_STATION_current.csv
+
 **Unit of observation:** degrees longitude, degrees latitude, year in service
+
 **Dates covered:** 2004
 
 ### To obtain a copy
